@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class EchoHandler extends TelegramLongPollingBot {
     @Override
     public String getBotUsername() {
-        return BotConfig.USERNAMEMYPROJECT;
+        return BotConfig.BOT_NAME;
     }
 
     public void onUpdateReceived(Update update) {
@@ -36,6 +36,6 @@ public class EchoHandler extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        return BotConfig.TOKENMYPROJECT;
+        return BotConfig.BOT_TOKEN;
     }
 }
