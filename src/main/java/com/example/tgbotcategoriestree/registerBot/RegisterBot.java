@@ -20,18 +20,5 @@ public class RegisterBot {
         } catch (TelegramApiException e) {
             System.out.println(e.getMessage());
         }
-
-//        try {
-//        ApiContextInitializer.init();
-//        TelegramBotsApi telegramBotsApi = createTelegramBotsApi();
-//        try {
-//            // Register long polling bots. They work regardless type of TelegramBotsApi we are creating
-//            telegramBotsApi.registerBot(new ChannelHandlers());
-//        } catch (TelegramApiException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    } catch (Exception e) {
-//        System.out.println(e.getMessage());
-//    }
     }
 }
