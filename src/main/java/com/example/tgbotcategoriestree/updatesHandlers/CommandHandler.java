@@ -1,6 +1,7 @@
 package com.example.tgbotcategoriestree.updatesHandlers;
 
 import com.example.tgbotcategoriestree.BotConfig;
+import com.example.tgbotcategoriestree.commands.AddElementCommand;
 import com.example.tgbotcategoriestree.commands.HelloCommand;
 import com.example.tgbotcategoriestree.commands.HelpCommand;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class CommandHandler extends TelegramLongPollingCommandBot {
         super(botUsername);
 
         register(new HelloCommand());
+        register(new AddElementCommand());
         HelpCommand helpCommand = new HelpCommand(this);
         register(helpCommand);
 
