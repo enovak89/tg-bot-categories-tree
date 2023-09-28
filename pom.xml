@@ -47,6 +47,13 @@
 			<artifactId>telegrambots</artifactId>
 			<version>6.8.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.telegram/telegrambotsextensions -->
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambotsextensions</artifactId>
+			<version>6.8.0</version>
+		</dependency>
+
 
 	</dependencies>
 

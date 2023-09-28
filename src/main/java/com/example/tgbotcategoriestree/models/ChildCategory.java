@@ -1,4 +1,4 @@
-package com.example.tgbotcategoriestree.entity;
+package com.example.tgbotcategoriestree.models;
 
 import jakarta.persistence.*;
 import lombok.Data;

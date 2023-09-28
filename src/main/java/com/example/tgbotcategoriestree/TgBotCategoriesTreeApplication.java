@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TgBotCategoriesTreeApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TgBotCategoriesTreeApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TgBotCategoriesTreeApplication.class, args);
+    }
 
 }

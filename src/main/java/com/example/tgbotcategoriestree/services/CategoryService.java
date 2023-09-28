@@ -1,4 +1,4 @@
-package com.example.tgbotcategoriestree.service;
+package com.example.tgbotcategoriestree.services;
 
 import com.example.tgbotcategoriestree.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
