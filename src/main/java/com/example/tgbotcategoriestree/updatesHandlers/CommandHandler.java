@@ -4,9 +4,9 @@ import com.example.tgbotcategoriestree.BotConfig;
 import com.example.tgbotcategoriestree.commands.AddElementCommand;
 import com.example.tgbotcategoriestree.commands.HelloCommand;
 import com.example.tgbotcategoriestree.commands.HelpCommand;
+import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.TelegramLongPollingCommandBotCustom;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.extensions.bots.commandbot.TelegramLongPollingCommandBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @NoArgsConstructor(force = true)
-public class CommandHandler extends TelegramLongPollingCommandBot {
+public class CommandHandler extends TelegramLongPollingCommandBotCustom {
 
     public CommandHandler(String botUsername) {
         super(botUsername);
@@ -37,7 +37,6 @@ public class CommandHandler extends TelegramLongPollingCommandBot {
         });
     }
 
-    @Override
     public void processNonCommandUpdate(Update update) {
 
         if (update.hasMessage()) {
