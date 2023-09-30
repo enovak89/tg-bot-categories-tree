@@ -2,10 +2,13 @@ package com.example.tgbotcategoriestree.services;
 
 import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.CategoryRepository;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
-@Service
+@NoArgsConstructor(force = true)
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -17,6 +20,7 @@ public class CategoryService {
     public void addRootElement(String element) {
         RootCategory rootCategory = new RootCategory();
         rootCategory.setName(element);
-        categoryRepository.save(rootCategory);
+        System.out.println("here");
+//        categoryRepository.save(rootCategory);
     }
 }

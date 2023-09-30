@@ -1,7 +1,6 @@
 package com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses;
 
 
-import lombok.NoArgsConstructor;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,7 +12,6 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
  *
  * @author Timo Schulz (Mit0x2)
  */
-@NoArgsConstructor(force = true)
 public abstract class BotCommandCustom implements IBotCommand {
     public final static String COMMAND_INIT_CHARACTER = "/";
     public static final String COMMAND_PARAMETER_SEPARATOR_REGEXP = "\\s+";

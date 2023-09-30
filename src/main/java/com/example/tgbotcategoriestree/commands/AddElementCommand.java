@@ -2,9 +2,12 @@ package com.example.tgbotcategoriestree.commands;
 
 import com.example.tgbotcategoriestree.repository.CategoryRepository;
 import com.example.tgbotcategoriestree.services.CategoryService;
+import com.example.tgbotcategoriestree.services.CategoryServiceConfiguration;
 import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.BotCommandCustom;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -15,10 +18,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 public class AddElementCommand extends BotCommandCustom {
 
-    private final CategoryService categoryService;
-    public AddElementCommand(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+    ApplicationContext context = new AnnotationConfigApplicationContext(CategoryServiceConfiguration.class);
+    CategoryService categoryService = context.getBean(CategoryService.class);
 
     public AddElementCommand() {
         super("/addElement", "Add element to categories tree");
