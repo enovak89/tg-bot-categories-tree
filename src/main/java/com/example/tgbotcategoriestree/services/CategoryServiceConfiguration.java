@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class CategoryServiceConfiguration {
 
-    @Bean
-    CategoryService categoryService() {
-        return new CategoryService();
-    }
+//    @Bean
+//    CategoryService categoryService() {
+//        return new CategoryService();
+//    }
 }

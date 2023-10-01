@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
-@NoArgsConstructor(force = true)
+@Service
+//@NoArgsConstructor(force = true)
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -21,6 +22,6 @@ public class CategoryService {
         RootCategory rootCategory = new RootCategory();
         rootCategory.setName(element);
         System.out.println("here");
-//        categoryRepository.save(rootCategory);
+        categoryRepository.save(rootCategory);
     }
 }

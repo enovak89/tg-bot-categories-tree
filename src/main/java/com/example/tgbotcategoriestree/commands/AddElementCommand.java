@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -18,11 +19,18 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 public class AddElementCommand extends BotCommandCustom {
 
-    ApplicationContext context = new AnnotationConfigApplicationContext(CategoryServiceConfiguration.class);
-    CategoryService categoryService = context.getBean(CategoryService.class);
+//    ApplicationContext context = new AnnotationConfigApplicationContext(CategoryServiceConfiguration.class);
+//    CategoryService categoryService = context.getBean(CategoryService.class);
 
-    public AddElementCommand() {
+    private static CategoryService categoryService;
+
+    private AddElementCommand(CategoryService categoryService) {
         super("/addElement", "Add element to categories tree");
+        AddElementCommand.categoryService = categoryService;
+    }
+
+    public static IBotCommand getAddElementCommand() {
+        return new AddElementCommand(categoryService);
     }
 
     @Override
