@@ -1,5 +1,6 @@
 package com.example.tgbotcategoriestree.services;
 
+import com.example.tgbotcategoriestree.models.ChildCategory;
 import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
@@ -17,21 +18,40 @@ public class CategoryService {
     }
 
     public void addRootElement(String element) {
-        if (!findRootElement(element) && !findChildElement(element)) {
-            RootCategory rootCategory = new RootCategory();
-            rootCategory.setName(element);
-            rootCategoryRepository.save(rootCategory);
-        } else {
-            throw new IllegalArgumentException("Element has already been added before");
+
+        if (findRootElement(element)) {
+            throw new IllegalArgumentException("The element has already been added before");
         }
+        if (findChildElement(element)) {
+            throw new IllegalArgumentException("The element has already been added before as child");
+        }
+
+        RootCategory rootCategory = new RootCategory();
+        rootCategory.setName(element);
+        rootCategoryRepository.save(rootCategory);
+
     }
 
     public void addChildElement(String rootElement, String childElement) {
-        if (true) {
-            System.out.println("no");
-        } else {
-            System.out.println("yes");
+
+        if (!findRootElement(rootElement)) {
+            throw new IllegalArgumentException("The root element was not found");
         }
+        if (findChildElement(childElement)) {
+            throw new IllegalArgumentException("The child element has already been added before");
+        }
+        if (findRootElement(childElement)) {
+            throw new IllegalArgumentException("The child element has already been added before as root");
+        }
+        if (findChildElement(rootElement)) {
+            throw new IllegalArgumentException("The root element has already been added before as child");
+        }
+
+        ChildCategory childCategory = new ChildCategory();
+        childCategory.setName(childElement);
+        childCategory.setRoot(rootCategoryRepository.findByName(rootElement).get());
+        childCategoryRepository.save(childCategory);
+
     }
 
     public boolean findRootElement(String element) {

@@ -34,31 +34,44 @@ public class AddElementCommand extends BotCommandCustom {
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
         if (arguments.length == 1) {
+
             try {
                 categoryService.addRootElement(arguments[0].toLowerCase());
-                messageText.replace(0, messageText.length(), "Element \"" + arguments[0]
+                messageText.replace(0, messageText.length(), "The root element \"" + arguments[0]
                         + "\" was added successfully");
                 addCommandResultAnswer(absSender, chat, messageText.toString());
             } catch (IllegalArgumentException e) {
-                messageText.replace(0, messageText.length(), "Sorry, but element \"" + arguments[0]
-                        + "\" has already been added before");
+                messageText.replace(0, messageText.length(), e.getMessage());
                 addCommandResultAnswer(absSender, chat, messageText.toString());
-                logger.error(e.getMessage());
+                logger.error(messageText.toString());
             }
+
         } else if (arguments.length == 2) {
-            System.out.println(arguments[0]);
-            System.out.println(arguments[1]);
+
+            try {
+                categoryService.addChildElement(arguments[0].toLowerCase(), arguments[1].toLowerCase());
+                messageText.replace(0, messageText.length(), "The child element \"" + arguments[1]
+                        + "\" was added successfully");
+                addCommandResultAnswer(absSender, chat, messageText.toString());
+            } catch (IllegalArgumentException e) {
+                messageText.replace(0, messageText.length(), e.getMessage());
+                addCommandResultAnswer(absSender, chat, messageText.toString());
+                logger.error(messageText.toString());
+            }
+
         } else {
             messageText.replace(0, messageText.length(),"The command /addElement requires one or two parameters");
             addCommandResultAnswer(absSender, chat, messageText.toString());
-            throw new IllegalArgumentException(messageText.toString());
+            logger.error(messageText.toString());
         }
     }
 
     public void addCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
+
         SendMessage addCommandResultMessage = new SendMessage();
         addCommandResultMessage.setChatId(chat.getId());
         addCommandResultMessage.setText(text);
+
         try {
             absSender.execute(addCommandResultMessage);
         } catch (TelegramApiException e) {
