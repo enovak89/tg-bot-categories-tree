@@ -17,7 +17,7 @@ public class CategoryService {
     }
 
     public void addRootElement(String element) {
-        if (rootCategoryRepository.findByName(element).isEmpty()) {
+        if (!findRootElement(element) && !findChildElement(element)) {
             RootCategory rootCategory = new RootCategory();
             rootCategory.setName(element);
             rootCategoryRepository.save(rootCategory);
@@ -34,4 +34,11 @@ public class CategoryService {
         }
     }
 
+    public boolean findRootElement(String element) {
+        return rootCategoryRepository.findByName(element).isPresent();
+    }
+
+    public boolean findChildElement(String element) {
+        return childCategoryRepository.findByName(element).isPresent();
+    }
 }

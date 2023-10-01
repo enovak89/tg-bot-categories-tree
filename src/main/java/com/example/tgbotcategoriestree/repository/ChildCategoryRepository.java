@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ChildCategoryRepository extends JpaRepository<RootCategory, Long> {
+public interface ChildCategoryRepository extends JpaRepository<ChildCategory, Long> {
     Optional<ChildCategory> findByName(String element);
 }

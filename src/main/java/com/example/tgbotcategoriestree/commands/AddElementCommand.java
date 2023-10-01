@@ -36,10 +36,12 @@ public class AddElementCommand extends BotCommandCustom {
         if (arguments.length == 1) {
             try {
                 categoryService.addRootElement(arguments[0].toLowerCase());
-                messageText.replace(0, messageText.length(), "Element \"" + arguments[0] + "\" was added successfully");
+                messageText.replace(0, messageText.length(), "Element \"" + arguments[0]
+                        + "\" was added successfully");
                 addCommandResultAnswer(absSender, chat, messageText.toString());
             } catch (IllegalArgumentException e) {
-                messageText.replace(0, messageText.length(), "Sorry, but element \"" + arguments[0] + "\" has already been added before");
+                messageText.replace(0, messageText.length(), "Sorry, but element \"" + arguments[0]
+                        + "\" has already been added before");
                 addCommandResultAnswer(absSender, chat, messageText.toString());
                 logger.error(e.getMessage());
             }
@@ -47,7 +49,7 @@ public class AddElementCommand extends BotCommandCustom {
             System.out.println(arguments[0]);
             System.out.println(arguments[1]);
         } else {
-            messageText.replace(0, messageText.length(), "The command /addElement requires one or two parameters");
+            messageText.replace(0, messageText.length(),"The command /addElement requires one or two parameters");
             addCommandResultAnswer(absSender, chat, messageText.toString());
             throw new IllegalArgumentException(messageText.toString());
         }

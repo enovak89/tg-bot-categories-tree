@@ -6,6 +6,8 @@ import com.example.tgbotcategoriestree.commands.HelloCommand;
 import com.example.tgbotcategoriestree.commands.HelpCommand;
 import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.TelegramLongPollingCommandBotCustom;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 @NoArgsConstructor(force = true)
 public class CommandHandler extends TelegramLongPollingCommandBotCustom {
+    private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 
     public CommandHandler(String botUsername) {
         super(botUsername);
@@ -31,7 +34,7 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
             try {
                 absSender.execute(commandUnknownMessage);
             } catch (TelegramApiException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
            helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[] {});
         });
@@ -50,7 +53,7 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
                 try {
                     execute(echoMessage);
                 } catch (TelegramApiException e) {
-                    System.out.println(e.getMessage());
+                    logger.error(e.getMessage());
                 }
             }
         }
