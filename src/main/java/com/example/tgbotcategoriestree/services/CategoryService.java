@@ -6,6 +6,12 @@ import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
+
 @Service
 public class CategoryService {
 
@@ -52,6 +58,33 @@ public class CategoryService {
         childCategory.setRoot(rootCategoryRepository.findByName(rootElement).get());
         childCategoryRepository.save(childCategory);
 
+    }
+
+    public Map<String, List<String>> viewCategoriesTree() {
+        Map<String, List<String>> categoriesTree = new TreeMap<>();
+        List<RootCategory> rootCategories = rootCategoryRepository.findAll();
+        return categoriesTree = rootCategories.stream()
+                .collect(groupingBy(RootCategory::getName,
+                        mapping(RootCategory::getName, toList())));
+
+
+//        Map<City, Set<String>> namesByCity    = people.stream().collect(
+//                groupingBy(Person::getCity,
+//                        mapping(Person::getLastName,
+//                                toSet())));
+
+
+//                        root -> List.of(childCategoryRepository.findAllByRootId(1L))));
+
+
+//        Collectors.toList(childCategoryRepository.findAllByRootId(1L))
+
+
+//        categoriesTree.forEach((key, value) -> {
+//            viewMessageBuilder.append(key).append("\n");
+//            value
+//                    .forEach(child -> viewMessageBuilder.append("  -").append(child).append("\n"));
+//        });
     }
 
     public boolean findRootElement(String element) {

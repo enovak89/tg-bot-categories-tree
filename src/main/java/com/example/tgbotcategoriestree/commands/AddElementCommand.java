@@ -60,7 +60,7 @@ public class AddElementCommand extends BotCommandCustom {
             }
 
         } else {
-            messageText.replace(0, messageText.length(),"The command /addElement requires one or two parameters");
+            messageText.replace(0, messageText.length(), "The command /addElement requires one or two parameters");
             addCommandResultAnswer(absSender, chat, messageText.toString());
             logger.error(messageText.toString());
         }
