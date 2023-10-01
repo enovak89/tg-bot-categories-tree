@@ -10,10 +10,9 @@ import java.util.List;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "root_categories")
 public class RootCategory {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;

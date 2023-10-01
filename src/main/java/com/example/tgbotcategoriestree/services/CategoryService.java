@@ -1,27 +1,37 @@
 package com.example.tgbotcategoriestree.services;
 
 import com.example.tgbotcategoriestree.models.RootCategory;
-import com.example.tgbotcategoriestree.repository.CategoryRepository;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
+import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
+import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-//@NoArgsConstructor(force = true)
 public class CategoryService {
 
-    private final CategoryRepository categoryRepository;
+    private final RootCategoryRepository rootCategoryRepository;
+    private final ChildCategoryRepository childCategoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public CategoryService(RootCategoryRepository rootCategoryRepository, ChildCategoryRepository childCategoryRepository) {
+        this.rootCategoryRepository = rootCategoryRepository;
+        this.childCategoryRepository = childCategoryRepository;
     }
 
     public void addRootElement(String element) {
-        RootCategory rootCategory = new RootCategory();
-        rootCategory.setName(element);
-        System.out.println("here");
-        categoryRepository.save(rootCategory);
+        if (rootCategoryRepository.findByName(element).isEmpty()) {
+            RootCategory rootCategory = new RootCategory();
+            rootCategory.setName(element);
+            rootCategoryRepository.save(rootCategory);
+        } else {
+            throw new IllegalArgumentException("Element has already been added before");
+        }
     }
+
+    public void addChildElement(String rootElement, String childElement) {
+        if (true) {
+            System.out.println("no");
+        } else {
+            System.out.println("yes");
+        }
+    }
+
 }

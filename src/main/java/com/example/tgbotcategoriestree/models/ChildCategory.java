@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @NoArgsConstructor
-@Table(name = "child_categories")
 public class ChildCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
