@@ -2,10 +2,12 @@ package com.example.tgbotcategoriestree.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
+@Data
 @NoArgsConstructor
 public class ChildCategory {
     @Id

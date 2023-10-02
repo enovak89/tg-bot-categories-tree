@@ -1,10 +1,7 @@
 package com.example.tgbotcategoriestree.updatesHandlers;
 
 import com.example.tgbotcategoriestree.BotConfig;
-import com.example.tgbotcategoriestree.commands.AddElementCommand;
-import com.example.tgbotcategoriestree.commands.HelloCommand;
-import com.example.tgbotcategoriestree.commands.HelpCommand;
-import com.example.tgbotcategoriestree.commands.ViewTreeCommand;
+import com.example.tgbotcategoriestree.commands.*;
 import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.TelegramLongPollingCommandBotCustom;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +23,7 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
         register(new HelloCommand());
         register(AddElementCommand.getAddElementCommand());
         register(ViewTreeCommand.getViewTreeCommand());
+        register(RemoveElementCommand.getRemoveElementCommand());
         HelpCommand helpCommand = new HelpCommand(this);
         register(helpCommand);
 

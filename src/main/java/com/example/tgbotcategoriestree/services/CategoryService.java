@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -60,15 +59,27 @@ public class CategoryService {
 
     }
 
+    public void removeElement(String element) {
+
+        if (findChildElement(element)) {
+            childCategoryRepository.deleteByName(element);
+        } else if (findRootElement(element)) {
+//            deleteRootAndChildElements(element);
+            rootCategoryRepository.deleteByName(element);
+        } else {
+            throw new IllegalArgumentException("The element was not found");
+        }
+    }
+
     public Map<String, List<String>> viewCategoriesTree() {
 
         return rootCategoryRepository.findAll().stream()
-                        .collect(
-                                groupingBy(
-                                        RootCategory::getName,
-                                        flatMapping(root -> root.getChildCategories().stream()
-                                                .map(ChildCategory::getName), toList())
-                                ));
+                .collect(
+                        groupingBy(
+                                RootCategory::getName,
+                                flatMapping(root -> root.getChildCategories().stream()
+                                        .map(ChildCategory::getName), toList())
+                        ));
     }
 
     public boolean findRootElement(String element) {
@@ -77,5 +88,16 @@ public class CategoryService {
 
     public boolean findChildElement(String element) {
         return childCategoryRepository.findByName(element).isPresent();
+    }
+
+    private void deleteRootAndChildElements(String element) {
+        RootCategory root = rootCategoryRepository.findByName(element).get();
+        List<ChildCategory> childs = root.getChildCategories();
+        if (childs.isEmpty()) {
+            rootCategoryRepository.delete(root);
+        } else {
+            childCategoryRepository.deleteAll(childs);
+            rootCategoryRepository.delete(root);
+        }
     }
 }

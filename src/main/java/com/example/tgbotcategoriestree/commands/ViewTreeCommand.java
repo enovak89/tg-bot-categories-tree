@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -40,6 +39,7 @@ public class ViewTreeCommand extends BotCommandCustom {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 
+        categoriesTree.clear();
         categoriesTree.putAll(categoryService.viewCategoriesTree());
 
         StringBuilder viewMessageBuilder = new StringBuilder("<b>The categories tree:</b>\n");
