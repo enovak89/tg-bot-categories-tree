@@ -62,19 +62,6 @@ public class CategoryService {
     }
 
     public Map<String, List<String>> viewCategoriesTree() {
-//        Map<String, List<ChildCategory>> categoriesTree;
-
-//        categoriesTree = rootCategoryRepository.findAll().stream()
-//                .collect(groupingBy(RootCategory::getName,
-//                mapping(root -> {
-//                    return childCategoryRepository.findAllByRootName("").stream()
-//                            .map(ChildCategory::getName)
-//                            .toList();
-//                }, toList())));
-
-
-//        List<String> rootCategories = rootCategoryRepository.findAll().stream()
-//                .map(RootCategory::getName).toList();
 
         List<RootCategory> rootCategories = rootCategoryRepository.findAll();
 
@@ -88,52 +75,6 @@ public class CategoryService {
                                 Map.Entry::getKey,
                                 flatMapping(listChild -> listChild.getValue().stream()
                                         .map(ChildCategory::getName), toList())));
-
-//        List<List<String>> childCategories = rootCategories.stream()
-//                .map(childCategoryRepository::findAllByRootName)
-//                .map(listChild -> listChild.stream()
-//                        .map(ChildCategory::getName)
-//                        .toList())
-//                .toList();
-//
-//        for (String rootName : rootCategories) {
-//            List<ChildCategory> listChild = childCategoryRepository.findAllByRootName(rootName);
-//            List<String> listChildName = listChild.stream().map(ChildCategory::getName).toList();
-//            categoriesTree.put(rootName, listChildName);
-//        }
-
-//        List<List<String>> childCategories = rootCategories.stream()
-//                .map(childCategoryRepository::findAllByRootName)
-//                .map(child -> child.stream()
-//                        .map(ChildCategory::getName)
-//                        .toList())
-//                .toList();
-
-//        return categoriesTree;
-
-
-//        return categoriesTree = rootCategories.stream()
-//                .collect(groupingBy(RootCategory::getName,
-//                        mapping(RootCategory::getName, toList())));
-
-
-//        Map<City, Set<String>> namesByCity    = people.stream().collect(
-//                groupingBy(Person::getCity,
-//                        mapping(Person::getLastName,
-//                                toSet())));
-
-
-//                        root -> List.of(childCategoryRepository.findAllByRootId(1L))));
-
-
-//        Collectors.toList(childCategoryRepository.findAllByRootId(1L))
-
-
-//        categoriesTree.forEach((key, value) -> {
-//            viewMessageBuilder.append(key).append("\n");
-//            value
-//                    .forEach(child -> viewMessageBuilder.append("  -").append(child).append("\n"));
-//        });
     }
 
     public boolean findRootElement(String element) {
