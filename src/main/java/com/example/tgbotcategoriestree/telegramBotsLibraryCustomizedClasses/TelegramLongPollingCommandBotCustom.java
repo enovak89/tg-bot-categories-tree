@@ -26,7 +26,6 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
     /**
      * Creates a TelegramLongPollingCommandBotCustom using default options
      * Use ICommandRegistry's methods on this bot to register commands
-     *
      */
     @Deprecated
     public TelegramLongPollingCommandBotCustom() {
@@ -38,8 +37,7 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
      * usernames
      * Use ICommandRegistry's methods on this bot to register commands
      *
-     * @param options     Bot options
-     *
+     * @param options Bot options
      */
     @Deprecated
     public TelegramLongPollingCommandBotCustom(DefaultBotOptions options) {
@@ -53,7 +51,6 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
      * @param options                   Bot options
      * @param allowCommandsWithUsername true to allow commands with parameters (default),
      *                                  false otherwise
-     *
      */
     @Deprecated
     public TelegramLongPollingCommandBotCustom(DefaultBotOptions options, boolean allowCommandsWithUsername) {
@@ -64,7 +61,6 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
     /**
      * Creates a TelegramLongPollingCommandBotCustom using default options
      * Use ICommandRegistry's methods on this bot to register commands
-     *
      */
     public TelegramLongPollingCommandBotCustom(String botToken) {
         this(new DefaultBotOptions(), botToken);
@@ -75,7 +71,7 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
      * usernames
      * Use ICommandRegistry's methods on this bot to register commands
      *
-     * @param options     Bot options
+     * @param options Bot options
      */
     public TelegramLongPollingCommandBotCustom(DefaultBotOptions options, String botToken) {
         this(options, true, botToken);

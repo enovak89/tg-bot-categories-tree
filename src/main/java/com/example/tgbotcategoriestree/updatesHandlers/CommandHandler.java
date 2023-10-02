@@ -36,7 +36,7 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
             } catch (TelegramApiException e) {
                 logger.error(e.getMessage());
             }
-           helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[] {});
+            helpCommand.execute(absSender, message.getFrom(), message.getChat(), new String[]{});
         });
     }
 

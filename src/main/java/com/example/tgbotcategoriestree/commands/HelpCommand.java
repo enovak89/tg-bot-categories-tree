@@ -38,5 +38,5 @@ public class HelpCommand extends BotCommandCustom {
         } catch (TelegramApiException e) {
             System.out.println(e.getMessage());
         }
-}
+    }
 }
