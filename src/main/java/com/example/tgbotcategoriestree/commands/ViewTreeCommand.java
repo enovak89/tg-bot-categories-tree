@@ -39,17 +39,16 @@ public class ViewTreeCommand extends BotCommandCustom {
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        categoriesTree.put("one", List.of("two", "three"));
-        categoriesTree.put("four", List.of("five"));
 
-        StringBuilder viewMessageBuilder = new StringBuilder("<b>The categories tree:</b>\n\n");
+        categoriesTree.putAll(categoryService.viewCategoriesTree());
+
+        StringBuilder viewMessageBuilder = new StringBuilder("<b>The categories tree:</b>\n");
 
         categoriesTree.forEach((key, value) -> {
             viewMessageBuilder.append(key).append("\n");
             value
                     .forEach(child -> viewMessageBuilder.append("  -").append(child).append("\n"));
         });
-
 
         SendMessage viewTreeMessage = new SendMessage();
         viewTreeMessage.setChatId(chat.getId().toString());

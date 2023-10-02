@@ -6,8 +6,9 @@ import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collector;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
@@ -61,11 +62,59 @@ public class CategoryService {
     }
 
     public Map<String, List<String>> viewCategoriesTree() {
-        Map<String, List<String>> categoriesTree = new TreeMap<>();
+//        Map<String, List<ChildCategory>> categoriesTree;
+
+//        categoriesTree = rootCategoryRepository.findAll().stream()
+//                .collect(groupingBy(RootCategory::getName,
+//                mapping(root -> {
+//                    return childCategoryRepository.findAllByRootName("").stream()
+//                            .map(ChildCategory::getName)
+//                            .toList();
+//                }, toList())));
+
+
+//        List<String> rootCategories = rootCategoryRepository.findAll().stream()
+//                .map(RootCategory::getName).toList();
+
         List<RootCategory> rootCategories = rootCategoryRepository.findAll();
-        return categoriesTree = rootCategories.stream()
-                .collect(groupingBy(RootCategory::getName,
-                        mapping(RootCategory::getName, toList())));
+
+        Map<String, List<ChildCategory>> categoriesTree = rootCategories.stream()
+                .collect(Collectors.toMap(RootCategory::getName,
+                        RootCategory::getChildCategories));
+
+        return categoriesTree.entrySet().stream()
+                .collect(
+                        groupingBy(
+                                Map.Entry::getKey,
+                                flatMapping(listChild -> listChild.getValue().stream()
+                                        .map(ChildCategory::getName), toList())));
+
+//        List<List<String>> childCategories = rootCategories.stream()
+//                .map(childCategoryRepository::findAllByRootName)
+//                .map(listChild -> listChild.stream()
+//                        .map(ChildCategory::getName)
+//                        .toList())
+//                .toList();
+//
+//        for (String rootName : rootCategories) {
+//            List<ChildCategory> listChild = childCategoryRepository.findAllByRootName(rootName);
+//            List<String> listChildName = listChild.stream().map(ChildCategory::getName).toList();
+//            categoriesTree.put(rootName, listChildName);
+//        }
+
+//        List<List<String>> childCategories = rootCategories.stream()
+//                .map(childCategoryRepository::findAllByRootName)
+//                .map(child -> child.stream()
+//                        .map(ChildCategory::getName)
+//                        .toList())
+//                .toList();
+
+//        return categoriesTree;
+
+
+//        return categoriesTree = rootCategories.stream()
+//                .collect(groupingBy(RootCategory::getName,
+//                        mapping(RootCategory::getName, toList())));
 
 
 //        Map<City, Set<String>> namesByCity    = people.stream().collect(

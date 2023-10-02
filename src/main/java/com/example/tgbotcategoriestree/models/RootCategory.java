@@ -17,6 +17,6 @@ public class RootCategory {
 
     private String name;
 
-    @OneToMany(mappedBy = "root", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "root", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ChildCategory> childCategories = new ArrayList<>();
 }

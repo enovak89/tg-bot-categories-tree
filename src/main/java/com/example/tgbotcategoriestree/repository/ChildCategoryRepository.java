@@ -10,7 +10,9 @@ import java.util.Optional;
 
 @Repository
 public interface ChildCategoryRepository extends JpaRepository<ChildCategory, Long> {
-    Optional<ChildCategory> findByName(String element);
+    Optional<ChildCategory> findByName(String elementName);
 
-    List<ChildCategory> findAllByRootId(Long id);
+    List<ChildCategory> findAllByRootName(String rootName);
+
+    List<String> getChildCategoryNameByRootName(String s);
 }
