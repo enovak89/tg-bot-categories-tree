@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
@@ -63,18 +62,13 @@ public class CategoryService {
 
     public Map<String, List<String>> viewCategoriesTree() {
 
-        List<RootCategory> rootCategories = rootCategoryRepository.findAll();
-
-        Map<String, List<ChildCategory>> categoriesTree = rootCategories.stream()
-                .collect(Collectors.toMap(RootCategory::getName,
-                        RootCategory::getChildCategories));
-
-        return categoriesTree.entrySet().stream()
-                .collect(
-                        groupingBy(
-                                Map.Entry::getKey,
-                                flatMapping(listChild -> listChild.getValue().stream()
-                                        .map(ChildCategory::getName), toList())));
+        return rootCategoryRepository.findAll().stream()
+                        .collect(
+                                groupingBy(
+                                        RootCategory::getName,
+                                        flatMapping(root -> root.getChildCategories().stream()
+                                                .map(ChildCategory::getName), toList())
+                                ));
     }
 
     public boolean findRootElement(String element) {
