@@ -50,6 +50,7 @@ public class RemoveElementCommand extends BotCommandCustom {
             messageText.replace(0, messageText.length(), "The command /removeElement requires one parameter");
             removeCommandResultAnswer(absSender, chat, messageText.toString());
             logger.error(messageText.toString());
+            categoryService.writeInWorkbookFromDb();
         }
     }
 
