@@ -13,6 +13,11 @@ import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service class for operation with xlsx files
+ *
+ * @author enovak89
+ */
 @Service
 public class FileService {
 
@@ -26,8 +31,12 @@ public class FileService {
         this.categoryService = categoryService;
     }
 
+    /**
+     * Method to save xlsx file in root directory and create its inputStream
+     * @return FileInputStream with xlsx file
+     */
     public FileInputStream createWorkBook() throws FileNotFoundException {
-
+        //Getting styled workBook with all categories
         Workbook excelBookCategories = recordDataInWorkbookFromDb();
 
         File currDir = new File(".");
@@ -44,7 +53,12 @@ public class FileService {
         return new FileInputStream(fileLocation);
     }
 
+    /**
+     * Method to create excel workBook with categories from DB
+     * @return workBook with data
+     */
     private Workbook recordDataInWorkbookFromDb() {
+        //Getting all categories from DB
         Map<String, List<String>> mapCategories = categoryService.viewCategoriesTree();
 
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -56,6 +70,8 @@ public class FileService {
         int cellNumber;
         int maxColumnNumber = 0;
 
+        //Recording categories to excel workBook
+        //Root - in the first cell, child - in the next cells in row
         for (String root : mapCategories.keySet()) {
             Row row = excelSheetCategories.createRow(rowNumber++);
             Cell cellRoot = row.createCell(0);
@@ -77,6 +93,11 @@ public class FileService {
         return workbook;
     }
 
+    /**
+     * Method to create excel cells style
+     * @param workbook
+     * @return cellStyle with Ground color and font
+     */
     private CellStyle createCellStyle(Workbook workbook) {
 
         CellStyle cellStyle = workbook.createCellStyle();
@@ -92,6 +113,9 @@ public class FileService {
         return cellStyle;
     }
 
+    /**
+     * Getter for file name constant
+     */
     public String getFileName() {
         return FILE_NAME;
     }
