@@ -4,15 +4,10 @@ import com.example.tgbotcategoriestree.models.ChildCategory;
 import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -87,57 +82,6 @@ public class CategoryService {
                                 flatMapping(root -> root.getChildCategories().stream()
                                         .map(ChildCategory::getName), toList())
                         ));
-    }
-
-    public void writeInWorkbookFromDb() {
-        Map<String, List<String>> mapCategories = viewCategoriesTree();
-
-        XSSFWorkbook excelBookCategories = new XSSFWorkbook();
-        Sheet excelSheetCategories = excelBookCategories.createSheet("Categories Tree");
-
-        CellStyle cellStyle = excelBookCategories.createCellStyle();
-        cellStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        XSSFFont font = excelBookCategories.createFont();
-        font.setFontName("Arial");
-        font.setFontHeightInPoints((short) 16);
-        font.setBold(true);
-        cellStyle.setFont(font);
-
-        int rowNumber = 0;
-        int cellNumber;
-        int maxColumnNumber = 0;
-
-        for (String root : mapCategories.keySet()) {
-            Row row = excelSheetCategories.createRow(rowNumber++);
-            Cell cellRoot = row.createCell(0);
-            cellRoot.setCellValue(root);
-            cellRoot.setCellStyle(cellStyle);
-            cellNumber = 1;
-            for (String child : mapCategories.get(root)) {
-                Cell cellChild = row.createCell(cellNumber++);
-                cellChild.setCellValue(child);
-                cellChild.setCellStyle(cellStyle);
-                maxColumnNumber = Math.max(maxColumnNumber, cellNumber);
-            }
-        }
-
-        for (int i = 0; i < maxColumnNumber; i++) {
-            excelSheetCategories.autoSizeColumn(i);
-        }
-
-        File currDir = new File(".");
-        String path = currDir.getAbsolutePath();
-        String fileLocation = path.substring(0, path.length() - 1) + "bookCategoriesTree.xlsx";
-
-        try {
-            FileOutputStream outputStream = new FileOutputStream(fileLocation);
-            excelBookCategories.write(outputStream);
-            excelBookCategories.close();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
     }
 
     public boolean findRootElement(String element) {

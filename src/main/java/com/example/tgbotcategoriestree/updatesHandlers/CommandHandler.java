@@ -24,6 +24,7 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
         register(AddElementCommand.getAddElementCommand());
         register(ViewTreeCommand.getViewTreeCommand());
         register(RemoveElementCommand.getRemoveElementCommand());
+        register(DownloadCommand.getDownloadCommand());
         HelpCommand helpCommand = new HelpCommand(this);
         register(helpCommand);
 
