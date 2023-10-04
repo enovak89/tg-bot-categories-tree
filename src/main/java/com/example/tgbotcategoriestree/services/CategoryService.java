@@ -4,7 +4,6 @@ import com.example.tgbotcategoriestree.models.ChildCategory;
 import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
-import com.example.tgbotcategoriestree.updatesHandlers.CommandHandler;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -93,53 +92,44 @@ public class CategoryService {
     public void writeInWorkbookFromDb() {
         Map<String, List<String>> mapCategories = viewCategoriesTree();
 
-        Workbook excelBookCategories = new XSSFWorkbook();
+        XSSFWorkbook excelBookCategories = new XSSFWorkbook();
         Sheet excelSheetCategories = excelBookCategories.createSheet("Categories Tree");
 
         CellStyle cellStyle = excelBookCategories.createCellStyle();
         cellStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        XSSFFont font = ((XSSFWorkbook) excelBookCategories).createFont();
+        XSSFFont font = excelBookCategories.createFont();
         font.setFontName("Arial");
         font.setFontHeightInPoints((short) 16);
         font.setBold(true);
         cellStyle.setFont(font);
 
-        Integer rowNumber = 0;
-        Integer cellNumber = 1;
-        Integer columnNumber = 0;
+        int rowNumber = 0;
+        int cellNumber;
+        int maxColumnNumber = 0;
 
         for (String root : mapCategories.keySet()) {
             Row row = excelSheetCategories.createRow(rowNumber++);
-            System.out.println("rowNumber = " + rowNumber);
-            row.setRowStyle(cellStyle);
-            row.createCell(0).setCellValue(root);
+            Cell cellRoot = row.createCell(0);
+            cellRoot.setCellValue(root);
+            cellRoot.setCellStyle(cellStyle);
             cellNumber = 1;
             for (String child : mapCategories.get(root)) {
-                row.createCell(cellNumber++).setCellValue(child);
-                System.out.println("cellNumber = " + cellNumber);
-                columnNumber = columnNumber < cellNumber ? cellNumber : columnNumber;
+                Cell cellChild = row.createCell(cellNumber++);
+                cellChild.setCellValue(child);
+                cellChild.setCellStyle(cellStyle);
+                maxColumnNumber = Math.max(maxColumnNumber, cellNumber);
             }
         }
 
-        System.out.println("columnNumber = " + columnNumber);
-
-        for (int i = 0; i < excelSheetCategories.getLastRowNum() - 1; i++) {
-            System.out.println("___________");
-            for (int j = 0; j < excelSheetCategories.getRow(i).getLastCellNum() - 1; j++) {
-                System.out.print(excelSheetCategories.getRow(i).getCell(j) + " | ");
-            }
-        }
-
-        for (int i = 0; i < columnNumber - 1; i++) {
+        for (int i = 0; i < maxColumnNumber; i++) {
             excelSheetCategories.autoSizeColumn(i);
         }
 
-
         File currDir = new File(".");
         String path = currDir.getAbsolutePath();
-        String fileLocation = path.substring(0, path.length() - 1) + "temp.xlsx";
+        String fileLocation = path.substring(0, path.length() - 1) + "bookCategoriesTree.xlsx";
 
         try {
             FileOutputStream outputStream = new FileOutputStream(fileLocation);
@@ -148,15 +138,6 @@ public class CategoryService {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
-
-//        try {
-//            FileOutputStream fileOut = new FileOutputStream("BookCategoriesTree.xlsx");
-//            excelBookCategories.write(fileOut);
-//            fileOut.close();
-//        }
-//        catch (Exception e) {
-//            logger.error(e.getMessage());
-//        }
     }
 
     public boolean findRootElement(String element) {
