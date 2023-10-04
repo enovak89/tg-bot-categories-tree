@@ -23,7 +23,7 @@ public class DownloadCommand extends BotCommandCustom {
     private static FileService fileService;
 
     private DownloadCommand(FileService fileService) {
-        super("/download", "Downloading excel file containing the entire categories tree");
+        super("/download", "Download excel file containing the entire categories tree");
         DownloadCommand.fileService = fileService;
     }
 

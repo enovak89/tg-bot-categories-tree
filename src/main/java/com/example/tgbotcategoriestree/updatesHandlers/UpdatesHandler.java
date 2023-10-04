@@ -6,6 +6,7 @@ import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.Tele
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -14,17 +15,19 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @NoArgsConstructor(force = true)
-public class CommandHandler extends TelegramLongPollingCommandBotCustom {
-    private final Logger logger = LoggerFactory.getLogger(CommandHandler.class);
+public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
+    private final Logger logger = LoggerFactory.getLogger(UpdatesHandler.class);
 
-    public CommandHandler(String botUsername) {
-        super(botUsername);
+    public UpdatesHandler(String botToken) {
+        super(botToken);
 
         register(new HelloCommand());
         register(AddElementCommand.getAddElementCommand());
         register(ViewTreeCommand.getViewTreeCommand());
         register(RemoveElementCommand.getRemoveElementCommand());
         register(DownloadCommand.getDownloadCommand());
+        UploadCommand uploadCommand = new UploadCommand();
+        register(uploadCommand);
         HelpCommand helpCommand = new HelpCommand(this);
         register(helpCommand);
 
@@ -42,9 +45,11 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
     }
 
     public void processNonCommandUpdate(Update update) {
-
         if (update.hasMessage()) {
             Message message = update.getMessage();
+            if (checkMessageHasDocAndCorrectCaption(message)) {
+                System.out.println("doc");
+            }
 
             if (message.hasText()) {
                 SendMessage echoMessage = new SendMessage();
@@ -57,6 +62,24 @@ public class CommandHandler extends TelegramLongPollingCommandBotCustom {
                     logger.error(e.getMessage());
                 }
             }
+        }
+    }
+
+    private boolean checkMessageHasDocAndCorrectCaption(Message message) {
+        try {
+            boolean result = message.hasDocument() && message.getCaption().equals(UploadCommand.COMMAND_IDENTIFIER);
+        } catch (NullPointerException e) {
+            SendMessage incorrectCaptureMessage = new SendMessage();
+            incorrectCaptureMessage.setChatId(message.getChatId());
+            incorrectCaptureMessage.setText("Caption is incorrect, please write " + UploadCommand.COMMAND_IDENTIFIER
+                    + " when send the file");
+
+            try {
+                execute(incorrectCaptureMessage);
+            } catch (TelegramApiException exception) {
+                logger.error(exception.getMessage());
+            }
+            return;
         }
     }
 
