@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
@@ -44,12 +45,10 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
         });
     }
 
+
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
-            if (checkMessageHasDocAndCorrectCaption(message)) {
-                System.out.println("doc");
-            }
 
             if (message.hasText()) {
                 SendMessage echoMessage = new SendMessage();
@@ -61,25 +60,10 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
                 } catch (TelegramApiException e) {
                     logger.error(e.getMessage());
                 }
-            }
-        }
-    }
-
-    private boolean checkMessageHasDocAndCorrectCaption(Message message) {
-        try {
-            boolean result = message.hasDocument() && message.getCaption().equals(UploadCommand.COMMAND_IDENTIFIER);
-        } catch (NullPointerException e) {
-            SendMessage incorrectCaptureMessage = new SendMessage();
-            incorrectCaptureMessage.setChatId(message.getChatId());
-            incorrectCaptureMessage.setText("Caption is incorrect, please write " + UploadCommand.COMMAND_IDENTIFIER
-                    + " when send the file");
-
-            try {
-                execute(incorrectCaptureMessage);
-            } catch (TelegramApiException exception) {
-                logger.error(exception.getMessage());
-            }
-            return;
+            } else if (message.hasDocument()) {
+                UploadCommand uploadCommand = new UploadCommand();
+                uploadCommand.processMessageWithDocument(message);
+                }
         }
     }
 

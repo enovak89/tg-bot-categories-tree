@@ -102,6 +102,7 @@ public abstract class TelegramLongPollingCommandBotCustom extends TelegramLongPo
                 return;
             }
         }
+
         processNonCommandUpdate(update);
     }
 
