@@ -1,6 +1,7 @@
 package com.example.tgbotcategoriestree.commands;
 
 import com.example.tgbotcategoriestree.BotConfig;
+import com.example.tgbotcategoriestree.services.FileService;
 import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.BotCommandCustom;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,58 +24,73 @@ import java.net.URL;
 public class UploadCommand extends BotCommandCustom {
     public static boolean UPLOAD_PERMISSION = false;
 
+    private static final StringBuilder messageText = new StringBuilder();
+
     private final Logger logger = LoggerFactory.getLogger(UploadCommand.class);
 
-    public UploadCommand() {
+    private static FileService fileService;
+
+    private UploadCommand(FileService fileService) {
         super("/upload", "Upload excel file containing the entire categories tree to save it in BD");
+        UploadCommand.fileService = fileService;
     }
 
-    public void processMessageWithDocument(Message message) {
-        System.out.println("UPLOAD_PERMISSION from processMessageWithDocument = " + UPLOAD_PERMISSION);
-        if (message.hasDocument() && UPLOAD_PERMISSION) {
-            System.out.println("doc ok");
+    public static UploadCommand getUploadCommand() {
+        return new UploadCommand(fileService);
+    }
+
+    public void processMessageWithDocument(AbsSender absSender, Message message) {
+        if (UPLOAD_PERMISSION) {
             try {
-                URL url = new URL("https://api.telegram.org/bot" + BotConfig.BOT_TOKEN
+                URL urlToGetFilePath = new URL("https://api.telegram.org/bot" + BotConfig.BOT_TOKEN
                         + "/getFile?file_id=" + message.getDocument().getFileId());
-                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-                String res = in.readLine();
-                JSONObject jresult = new JSONObject(res);
-                JSONObject path = jresult.getJSONObject("result");
-                String file_path = path.getString("file_path");
+                BufferedReader in = new BufferedReader(new InputStreamReader(urlToGetFilePath.openStream()));
+                String stringWithKeyResult = in.readLine();
+                JSONObject jsonWithKeyResult = new JSONObject(stringWithKeyResult);
+                JSONObject jsonWithFilePath = jsonWithKeyResult.getJSONObject("result");
+                String filePath = jsonWithFilePath.getString("file_path");
                 TelegramFileDownloader fileDownloader = new TelegramFileDownloader(BotConfig::getBotToken);
-                File file = fileDownloader.downloadFile(file_path);
+                File file = fileDownloader.downloadFile(filePath);
                 Workbook workbook = new XSSFWorkbook(new FileInputStream(file));
-                System.out.println("workbook.getSheetAt(0).getRow(0).getCell(0) = " + workbook.getSheetAt(0).getRow(0).getCell(0));
-                System.out.println("workbook.getSheetAt(0).getRow(0).getCell(1) = " + workbook.getSheetAt(0).getRow(0).getCell(1));
+                fileService.recordDataInDbFromWorkBook(workbook);
+
                 UPLOAD_PERMISSION = false;
-            } catch (IOException e) {
-                System.out.println("io ex");
-            } catch (TelegramApiException ex) {
-                System.out.println("API ex");
+                messageText.replace(0, messageText.length(), "Downloading is completed successfully");
+                uploadCommandResultAnswer(absSender, message.getChat(), messageText.toString());
+            } catch (IOException | TelegramApiException | IllegalArgumentException e) {
+                UPLOAD_PERMISSION = false;
+                messageText.replace(0, messageText.length(), e.getMessage());
+                uploadCommandResultAnswer(absSender, message.getChat(), messageText.toString());
+                logger.error(e.getMessage());
             }
         } else {
-            System.out.println("doc not ok");
+            messageText.replace(0, messageText.length(), "Sorry, not ready to download." +
+                    " Run the /upload command before sending the file");
+            uploadCommandResultAnswer(absSender, message.getChat(), messageText.toString());
         }
     }
 
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        SendMessage getUploadCommandMessage = new SendMessage();
-        getUploadCommandMessage.setChatId(chat.getId());
-        getUploadCommandMessage.setText("Please, in your response message send XLSX file," +
-                " where put root categories in the first column, its child categories - in the next columns");
-        try {
-            absSender.execute(getUploadCommandMessage);
-        } catch (TelegramApiException e) {
-            logger.error(e.getMessage());
-        }
+        messageText.replace(0, messageText.length(), "Please, in your response message send XLSX file," +
+                " where at the first worksheet put root categories in the first column, its child categories - in the next columns");
+        uploadCommandResultAnswer(absSender, chat, messageText.toString());
 
-        getUploadCommandMessage.setText("Ready to download");
+        UPLOAD_PERMISSION = true;
+        messageText.replace(0, messageText.length(), "Ready to download");
+        uploadCommandResultAnswer(absSender, chat, messageText.toString());
+    }
+
+    private void uploadCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
+
+        SendMessage uploadCommandResultMessage = new SendMessage();
+        uploadCommandResultMessage.setChatId(chat.getId());
+        uploadCommandResultMessage.setText(text);
+
         try {
-            absSender.execute(getUploadCommandMessage);
+            absSender.execute(uploadCommandResultMessage);
         } catch (TelegramApiException e) {
             logger.error(e.getMessage());
         }
-        UPLOAD_PERMISSION = true;
     }
 }

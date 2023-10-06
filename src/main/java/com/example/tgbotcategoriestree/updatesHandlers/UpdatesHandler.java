@@ -6,12 +6,10 @@ import com.example.tgbotcategoriestree.telegramBotsLibraryCustomizedClasses.Tele
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
@@ -22,13 +20,11 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
     public UpdatesHandler(String botToken) {
         super(botToken);
 
-        register(new HelloCommand());
         register(AddElementCommand.getAddElementCommand());
         register(ViewTreeCommand.getViewTreeCommand());
         register(RemoveElementCommand.getRemoveElementCommand());
         register(DownloadCommand.getDownloadCommand());
-        UploadCommand uploadCommand = new UploadCommand();
-        register(uploadCommand);
+        register(UploadCommand.getUploadCommand());
         HelpCommand helpCommand = new HelpCommand(this);
         register(helpCommand);
 
@@ -45,7 +41,6 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
         });
     }
 
-
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
@@ -53,7 +48,8 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
             if (message.hasText()) {
                 SendMessage echoMessage = new SendMessage();
                 echoMessage.setChatId(message.getChatId());
-                echoMessage.setText("Hey here's your message:\n" + message.getText());
+                echoMessage.setText("Here is your message:\n" + message.getText() + "\nIt is not a command, " +
+                        "to see supported commands send /help");
 
                 try {
                     execute(echoMessage);
@@ -61,9 +57,8 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
                     logger.error(e.getMessage());
                 }
             } else if (message.hasDocument()) {
-                UploadCommand uploadCommand = new UploadCommand();
-                uploadCommand.processMessageWithDocument(message);
-                }
+                UploadCommand.getUploadCommand().processMessageWithDocument(this, message);
+            }
         }
     }
 

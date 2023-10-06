@@ -17,7 +17,7 @@ public class AddElementCommand extends BotCommandCustom {
 
     private final Logger logger = LoggerFactory.getLogger(AddElementCommand.class);
 
-    private static StringBuilder messageText = new StringBuilder();
+    private static final StringBuilder messageText = new StringBuilder();
 
     private static CategoryService categoryService;
 
@@ -66,7 +66,7 @@ public class AddElementCommand extends BotCommandCustom {
         }
     }
 
-    public void addCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
+    private void addCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
 
         SendMessage addCommandResultMessage = new SendMessage();
         addCommandResultMessage.setChatId(chat.getId());

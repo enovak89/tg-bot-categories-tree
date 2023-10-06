@@ -4,8 +4,6 @@ import com.example.tgbotcategoriestree.models.ChildCategory;
 import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +14,6 @@ import static java.util.stream.Collectors.*;
 @Service
 public class CategoryService {
 
-    private final Logger logger = LoggerFactory.getLogger(CategoryService.class);
     private final RootCategoryRepository rootCategoryRepository;
     private final ChildCategoryRepository childCategoryRepository;
 
@@ -26,12 +23,14 @@ public class CategoryService {
     }
 
     public void addRootElement(String element) {
-
+        if (element == null || element.isEmpty()) {
+            throw new IllegalArgumentException("The element can not be empty");
+        }
         if (findRootElement(element)) {
-            throw new IllegalArgumentException("The element has already been added before");
+            throw new IllegalArgumentException("The element \"" + element + "\" has already been added before");
         }
         if (findChildElement(element)) {
-            throw new IllegalArgumentException("The element has already been added before as child");
+            throw new IllegalArgumentException("The element \"" + element + "\" has already been added before as child");
         }
 
         RootCategory rootCategory = new RootCategory();
@@ -41,18 +40,24 @@ public class CategoryService {
     }
 
     public void addChildElement(String rootElement, String childElement) {
+        if (rootElement == null || rootElement.isEmpty()) {
+            throw new IllegalArgumentException("The root element can not be empty");
+        }
+        if (childElement == null || childElement.isEmpty()) {
+            throw new IllegalArgumentException("The child element can not be empty");
+        }
 
         if (!findRootElement(rootElement)) {
-            throw new IllegalArgumentException("The root element was not found");
+            throw new IllegalArgumentException("The root element \"" + rootElement + "\" was not found");
         }
         if (findChildElement(childElement)) {
-            throw new IllegalArgumentException("The child element has already been added before");
+            throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before");
         }
         if (findRootElement(childElement)) {
-            throw new IllegalArgumentException("The child element has already been added before as root");
+            throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before as root");
         }
         if (findChildElement(rootElement)) {
-            throw new IllegalArgumentException("The root element has already been added before as child");
+            throw new IllegalArgumentException("The root element \"" + rootElement + "\" has already been added before as child");
         }
 
         ChildCategory childCategory = new ChildCategory();
@@ -69,8 +74,13 @@ public class CategoryService {
         } else if (findRootElement(element)) {
             rootCategoryRepository.deleteByName(element);
         } else {
-            throw new IllegalArgumentException("The element was not found");
+            throw new IllegalArgumentException("The element \"" + element + "\" was not found");
         }
+    }
+
+    public void removeAllElements() {
+        rootCategoryRepository.deleteAll();
+        childCategoryRepository.deleteAll();
     }
 
     public Map<String, List<String>> viewCategoriesTree() {

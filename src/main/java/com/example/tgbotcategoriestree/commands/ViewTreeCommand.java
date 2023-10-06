@@ -21,9 +21,7 @@ public class ViewTreeCommand extends BotCommandCustom {
 
     private final Logger logger = LoggerFactory.getLogger(ViewTreeCommand.class);
 
-    private static StringBuilder messageText = new StringBuilder();
-
-    private static Map<String, List<String>> categoriesTree = new TreeMap<>();
+    private static final Map<String, List<String>> categoriesTree = new TreeMap<>();
 
     private static CategoryService categoryService;
 

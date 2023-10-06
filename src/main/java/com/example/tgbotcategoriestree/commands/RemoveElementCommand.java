@@ -17,7 +17,7 @@ public class RemoveElementCommand extends BotCommandCustom {
 
     private final Logger logger = LoggerFactory.getLogger(RemoveElementCommand.class);
 
-    private static StringBuilder messageText = new StringBuilder();
+    private static final StringBuilder messageText = new StringBuilder();
 
     private static CategoryService categoryService;
 

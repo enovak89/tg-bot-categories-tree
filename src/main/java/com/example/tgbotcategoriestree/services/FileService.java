@@ -10,8 +10,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Service class for operation with xlsx files
@@ -32,7 +34,8 @@ public class FileService {
     }
 
     /**
-     * Method to save xlsx file in root directory and create its inputStream
+     * Method to save xlsx file containing DB data in root directory and create its inputStream
+     *
      * @return FileInputStream with xlsx file
      */
     public FileInputStream createWorkBook() throws FileNotFoundException {
@@ -55,6 +58,7 @@ public class FileService {
 
     /**
      * Method to create excel workBook with categories from DB
+     *
      * @return workBook with data
      */
     private Workbook recordDataInWorkbookFromDb() {
@@ -95,6 +99,7 @@ public class FileService {
 
     /**
      * Method to create excel cells style
+     *
      * @param workbook for cells styling
      * @return cellStyle with Ground color and font
      */
@@ -111,6 +116,55 @@ public class FileService {
         cellStyle.setFont(font);
 
         return cellStyle;
+    }
+
+    /**
+     * Method to record categories from excel workBook into DB
+     */
+    public void recordDataInDbFromWorkBook(Workbook workbook) throws IllegalArgumentException {
+        Set<String> sameElements = checkDataInWorkBook(workbook);
+        if (sameElements.isEmpty()) {
+
+            Sheet firstSheet = workbook.getSheetAt(0);
+            for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
+                Row row = firstSheet.getRow(i);
+                String rootCategoryName = row.getCell(0).toString();
+                categoryService.addRootElement(rootCategoryName);
+                for (int j = 1; j < row.getLastCellNum(); j++) {
+                    categoryService.addChildElement(rootCategoryName, row.getCell(j).toString());
+                }
+            }
+        } else {
+            throw new IllegalArgumentException("Downloading is completed unsuccessfully. " +
+                    "\nThe following elements have already been added to categories tree before: " + sameElements
+                    + "\nDelete it and try again");
+        }
+    }
+
+    private Set<String> checkDataInWorkBook(Workbook workbook) throws IllegalArgumentException {
+        Map<String, List<String>> mapCategoriesFromDb = categoryService.viewCategoriesTree();
+        Set<String> setCategoriesFromDb = new HashSet<>();
+        Set<String> sameElements = new HashSet<>();
+
+        for (String root : mapCategoriesFromDb.keySet()) {
+            setCategoriesFromDb.add(root);
+            setCategoriesFromDb.addAll(mapCategoriesFromDb.get(root));
+        }
+
+        Sheet firstSheet = workbook.getSheetAt(0);
+        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
+            Row row = firstSheet.getRow(i);
+            String rootCategoryName = row.getCell(0).toString();
+            if (setCategoriesFromDb.contains(rootCategoryName)) {
+                sameElements.add(rootCategoryName);
+            }
+            for (int j = 1; j < row.getLastCellNum(); j++) {
+                if (setCategoriesFromDb.contains(row.getCell(j).toString())) {
+                    sameElements.add(row.getCell(j).toString());
+                }
+            }
+        }
+        return sameElements;
     }
 
     /**
