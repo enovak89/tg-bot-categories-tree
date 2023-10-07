@@ -78,11 +78,6 @@ public class CategoryService {
         }
     }
 
-    public void removeAllElements() {
-        rootCategoryRepository.deleteAll();
-        childCategoryRepository.deleteAll();
-    }
-
     public Map<String, List<String>> viewCategoriesTree() {
 
         return rootCategoryRepository.findAll().stream()
