@@ -11,10 +11,18 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
  * Representation of a command, which can be executed
  *
  * @author Timo Schulz (Mit0x2)
+ * <p>
+ * Customized enovak89
  */
 public abstract class BotCommandCustom implements IBotCommand {
     public final static String COMMAND_INIT_CHARACTER = "/";
     public static final String COMMAND_PARAMETER_SEPARATOR_REGEXP = "\\s+";
+
+    /**
+     * Command max length increased from 32 to Integer.MAX_VALUE
+     *
+     * @author enovak89
+     */
     private final static int COMMAND_MAX_LENGTH = Integer.MAX_VALUE;
 
     private final String commandIdentifier;
@@ -41,6 +49,8 @@ public abstract class BotCommandCustom implements IBotCommand {
             throw new IllegalArgumentException("commandIdentifier cannot be longer than " + COMMAND_MAX_LENGTH + " (including " + COMMAND_INIT_CHARACTER + ")");
         }
 
+        // Deleted toLowerCase()
+        // @author enovak89
         this.commandIdentifier = commandIdentifier;
         this.description = description;
     }

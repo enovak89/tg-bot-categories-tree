@@ -15,6 +15,11 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.FileNotFoundException;
 
+/**
+ * Service class to manage downloading excel file
+ *
+ * @author enovak89
+ */
 @Service
 public class DownloadCommand extends BotCommandCustom {
 
@@ -31,6 +36,16 @@ public class DownloadCommand extends BotCommandCustom {
         return new DownloadCommand(fileService);
     }
 
+    /**
+     * Method to send excel file with categories tree
+     *
+     * @param absSender
+     * @param user      - user from message
+     * @param chat      - chat from message
+     * @param arguments - parameters of command
+     * @throws TelegramApiException
+     * @throws FileNotFoundException
+     */
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 

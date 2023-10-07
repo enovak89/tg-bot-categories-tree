@@ -7,6 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Repository class of child category
+ *
+ * @author enovak89
+ */
 @Repository
 @Transactional
 public interface ChildCategoryRepository extends JpaRepository<ChildCategory, Long> {

@@ -12,11 +12,19 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Service class for processing elements adding
+ *
+ * @author enovak89
+ */
 @Service
 public class AddElementCommand extends BotCommandCustom {
 
     private final Logger logger = LoggerFactory.getLogger(AddElementCommand.class);
 
+    /**
+     * String builder contains result message text
+     */
     private static final StringBuilder messageText = new StringBuilder();
 
     private static CategoryService categoryService;
@@ -30,9 +38,18 @@ public class AddElementCommand extends BotCommandCustom {
         return new AddElementCommand(categoryService);
     }
 
+    /**
+     * Method to add elements to BD
+     *
+     * @param absSender
+     * @param user      - user from message
+     * @param chat      - chat from message
+     * @param arguments - parameters of addElement command
+     * @throws IllegalArgumentException
+     */
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-
+        //adding root element
         if (arguments.length == 1) {
 
             try {
@@ -45,7 +62,7 @@ public class AddElementCommand extends BotCommandCustom {
                 addCommandResultAnswer(absSender, chat, messageText.toString());
                 logger.error(messageText.toString());
             }
-
+            //adding child element
         } else if (arguments.length == 2) {
 
             try {
@@ -58,7 +75,7 @@ public class AddElementCommand extends BotCommandCustom {
                 addCommandResultAnswer(absSender, chat, messageText.toString());
                 logger.error(messageText.toString());
             }
-
+            //forming answer message when not required parameters number
         } else {
             messageText.replace(0, messageText.length(), "The command /addElement requires one or two parameters");
             addCommandResultAnswer(absSender, chat, messageText.toString());
@@ -66,6 +83,14 @@ public class AddElementCommand extends BotCommandCustom {
         }
     }
 
+    /**
+     * Method to send message with addCommand result text
+     *
+     * @param absSender
+     * @param chat      - chat from message
+     * @param text      - message text to send
+     * @throws TelegramApiException
+     */
     private void addCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
 
         SendMessage addCommandResultMessage = new SendMessage();

@@ -10,6 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Service class to process help command
+ *
+ * @author enovak89
+ */
 @Service
 public class HelpCommand extends BotCommandCustom {
     private final ICommandRegistry commandRegistry;
@@ -19,6 +24,15 @@ public class HelpCommand extends BotCommandCustom {
         this.commandRegistry = commandRegistry;
     }
 
+    /**
+     * Method to send bot registered commands
+     *
+     * @param absSender
+     * @param user      - user from message
+     * @param chat      - chat from message
+     * @param strings   - parameters of command
+     * @throws TelegramApiException
+     */
     public void execute(AbsSender absSender, User user, Chat chat, String[] strings) {
 
         StringBuilder helpMessageBuilder = new StringBuilder("<b>Help</b>\n");

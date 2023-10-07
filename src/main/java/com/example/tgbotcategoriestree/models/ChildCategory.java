@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity class of child category
+ *
+ * @author enovak89
+ */
 @Entity
 @Data
 @NoArgsConstructor

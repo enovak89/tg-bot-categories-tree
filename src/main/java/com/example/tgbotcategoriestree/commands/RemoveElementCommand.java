@@ -12,11 +12,19 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Service class for processing elements removing
+ *
+ * @author enovak89
+ */
 @Service
 public class RemoveElementCommand extends BotCommandCustom {
 
     private final Logger logger = LoggerFactory.getLogger(RemoveElementCommand.class);
 
+    /**
+     * String builder contains result message text
+     */
     private static final StringBuilder messageText = new StringBuilder();
 
     private static CategoryService categoryService;
@@ -30,9 +38,18 @@ public class RemoveElementCommand extends BotCommandCustom {
         return new RemoveElementCommand(categoryService);
     }
 
+    /**
+     * Method to remove elements from BD
+     *
+     * @param absSender
+     * @param user      - user from message
+     * @param chat      - chat from message
+     * @param arguments - parameters of command
+     * @throws IllegalArgumentException
+     */
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-
+        //Removing element
         if (arguments.length == 1) {
 
             try {
@@ -45,7 +62,7 @@ public class RemoveElementCommand extends BotCommandCustom {
                 removeCommandResultAnswer(absSender, chat, messageText.toString());
                 logger.error(messageText.toString());
             }
-
+            //forming answer message when not required parameters number
         } else {
             messageText.replace(0, messageText.length(), "The command /removeElement requires one parameter");
             removeCommandResultAnswer(absSender, chat, messageText.toString());
@@ -53,6 +70,14 @@ public class RemoveElementCommand extends BotCommandCustom {
         }
     }
 
+    /**
+     * Method to send message with removeCommand result text
+     *
+     * @param absSender
+     * @param chat      - chat from message
+     * @param text      - message text to send
+     * @throws TelegramApiException
+     */
     public void removeCommandResultAnswer(AbsSender absSender, Chat chat, String text) {
 
         SendMessage addCommandResultMessage = new SendMessage();

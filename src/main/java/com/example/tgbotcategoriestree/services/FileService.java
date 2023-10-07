@@ -37,11 +37,13 @@ public class FileService {
      * Method to save xlsx file containing DB data in root directory and create its inputStream
      *
      * @return FileInputStream with xlsx file
+     * @throws FileNotFoundException
      */
     public FileInputStream createWorkBook() throws FileNotFoundException {
         //Getting styled workBook with all categories
         Workbook excelBookCategories = recordDataInWorkbookFromDb();
 
+        //Creating and saving file
         File currDir = new File(".");
         String path = currDir.getAbsolutePath();
         String fileLocation = path.substring(0, path.length() - 1) + FILE_NAME;
@@ -120,9 +122,14 @@ public class FileService {
 
     /**
      * Method to record categories from excel workBook into DB
+     *
+     * @param workbook from user message
+     * @throws IllegalArgumentException
      */
-    public void recordDataInDbFromWorkBook(Workbook workbook) throws IllegalArgumentException {
+    public void recordDataInDbFromWorkBook(Workbook workbook) {
+
         Set<String> sameElements = checkDataInWorkBook(workbook);
+
         if (sameElements.isEmpty()) {
 
             Sheet firstSheet = workbook.getSheetAt(0);
@@ -141,16 +148,25 @@ public class FileService {
         }
     }
 
-    private Set<String> checkDataInWorkBook(Workbook workbook) throws IllegalArgumentException {
+    /**
+     * Method to check already added categories in DB and return its
+     *
+     * @param workbook from user message
+     * @return set with the same elements in user workbook and DB
+     */
+    private Set<String> checkDataInWorkBook(Workbook workbook) {
+        //Getting map with all categories
         Map<String, List<String>> mapCategoriesFromDb = categoryService.viewCategoriesTree();
         Set<String> setCategoriesFromDb = new HashSet<>();
         Set<String> sameElements = new HashSet<>();
 
+        //Mapping to set
         for (String root : mapCategoriesFromDb.keySet()) {
             setCategoriesFromDb.add(root);
             setCategoriesFromDb.addAll(mapCategoriesFromDb.get(root));
         }
 
+        //Checking DB contains categories from user workbook
         Sheet firstSheet = workbook.getSheetAt(0);
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
@@ -169,6 +185,8 @@ public class FileService {
 
     /**
      * Getter for file name constant
+     *
+     * @return file name
      */
     public String getFileName() {
         return FILE_NAME;

@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Service class to get user the entire categories tree
+ *
+ * @author enovak89
+ */
 @Service
 public class ViewTreeCommand extends BotCommandCustom {
 
@@ -34,6 +39,15 @@ public class ViewTreeCommand extends BotCommandCustom {
         return new ViewTreeCommand(categoryService);
     }
 
+    /**
+     * Method to form and send message text with categories tree
+     *
+     * @param absSender
+     * @param user      - user from message
+     * @param chat      - chat from message
+     * @param arguments - parameters of command
+     * @throws TelegramApiException
+     */
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
 

@@ -12,11 +12,21 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * Service class to process user updates
+ *
+ * @author enovak89
+ */
 @Service
 @NoArgsConstructor(force = true)
 public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
     private final Logger logger = LoggerFactory.getLogger(UpdatesHandler.class);
 
+    /**
+     * Method-constructor to register commands and process message contains unknown command
+     *
+     * @param botToken bot token
+     */
     public UpdatesHandler(String botToken) {
         super(botToken);
 
@@ -41,6 +51,11 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
         });
     }
 
+    /**
+     * Method to process message not contains command or contains document
+     *
+     * @param update from user
+     */
     public void processNonCommandUpdate(Update update) {
         if (update.hasMessage()) {
             Message message = update.getMessage();
@@ -62,11 +77,21 @@ public class UpdatesHandler extends TelegramLongPollingCommandBotCustom {
         }
     }
 
+    /**
+     * Method to get bot name from {@link BotConfig}
+     *
+     * @return bot name
+     */
     @Override
     public String getBotUsername() {
         return BotConfig.BOT_NAME;
     }
 
+    /**
+     * Method to get bot token from {@link BotConfig}
+     *
+     * @return bot token
+     */
     @Override
     public String getBotToken() {
         return BotConfig.BOT_TOKEN;

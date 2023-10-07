@@ -11,6 +11,11 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.*;
 
+/**
+ * Service class to add, remove, check categories and formed map with all structured categories
+ *
+ * @author enovak89
+ */
 @Service
 public class CategoryService {
 
@@ -22,14 +27,20 @@ public class CategoryService {
         this.childCategoryRepository = childCategoryRepository;
     }
 
+    /**
+     * Method to check root category present and save it or throws
+     *
+     * @param element - root category
+     * @throws IllegalArgumentException
+     */
     public void addRootElement(String element) {
         if (element == null || element.isEmpty()) {
             throw new IllegalArgumentException("The element can not be empty");
         }
-        if (findRootElement(element)) {
+        if (checkRootElementPresent(element)) {
             throw new IllegalArgumentException("The element \"" + element + "\" has already been added before");
         }
-        if (findChildElement(element)) {
+        if (checkChildElementPresent(element)) {
             throw new IllegalArgumentException("The element \"" + element + "\" has already been added before as child");
         }
 
@@ -39,6 +50,13 @@ public class CategoryService {
 
     }
 
+    /**
+     * Method to check root and child categories present and save it or throws
+     *
+     * @param rootElement  - root category
+     * @param childElement - child category
+     * @throws IllegalArgumentException
+     */
     public void addChildElement(String rootElement, String childElement) {
         if (rootElement == null || rootElement.isEmpty()) {
             throw new IllegalArgumentException("The root element can not be empty");
@@ -47,16 +65,16 @@ public class CategoryService {
             throw new IllegalArgumentException("The child element can not be empty");
         }
 
-        if (!findRootElement(rootElement)) {
+        if (!checkRootElementPresent(rootElement)) {
             throw new IllegalArgumentException("The root element \"" + rootElement + "\" was not found");
         }
-        if (findChildElement(childElement)) {
+        if (checkChildElementPresent(childElement)) {
             throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before");
         }
-        if (findRootElement(childElement)) {
+        if (checkRootElementPresent(childElement)) {
             throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before as root");
         }
-        if (findChildElement(rootElement)) {
+        if (checkChildElementPresent(rootElement)) {
             throw new IllegalArgumentException("The root element \"" + rootElement + "\" has already been added before as child");
         }
 
@@ -67,17 +85,28 @@ public class CategoryService {
 
     }
 
+    /**
+     * Method to check category present and remove it or throws
+     *
+     * @param element - category
+     * @throws IllegalArgumentException
+     */
     public void removeElement(String element) {
 
-        if (findChildElement(element)) {
+        if (checkChildElementPresent(element)) {
             childCategoryRepository.deleteByName(element);
-        } else if (findRootElement(element)) {
+        } else if (checkRootElementPresent(element)) {
             rootCategoryRepository.deleteByName(element);
         } else {
             throw new IllegalArgumentException("The element \"" + element + "\" was not found");
         }
     }
 
+    /**
+     * Method to form map with all structured categories
+     *
+     * @return map with categories tree
+     */
     public Map<String, List<String>> viewCategoriesTree() {
 
         return rootCategoryRepository.findAll().stream()
@@ -89,11 +118,23 @@ public class CategoryService {
                         ));
     }
 
-    public boolean findRootElement(String element) {
+    /**
+     * Method to check root category present
+     *
+     * @param element - root category
+     * @return boolean checking result
+     */
+    public boolean checkRootElementPresent(String element) {
         return rootCategoryRepository.findByName(element).isPresent();
     }
 
-    public boolean findChildElement(String element) {
+    /**
+     * Method to check child category present
+     *
+     * @param element - child category
+     * @return boolean checking result
+     */
+    public boolean checkChildElementPresent(String element) {
         return childCategoryRepository.findByName(element).isPresent();
     }
 }

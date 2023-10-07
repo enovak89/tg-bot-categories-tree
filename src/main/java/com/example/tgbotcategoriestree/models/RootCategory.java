@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity class of root category
+ *
+ * @author enovak89
+ */
 @Entity
 @NoArgsConstructor
 @Data
