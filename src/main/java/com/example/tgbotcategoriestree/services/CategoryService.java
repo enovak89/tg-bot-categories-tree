@@ -6,7 +6,6 @@ import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.CategoryRepository;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -186,7 +185,7 @@ public class CategoryService {
 
                     if (childCategory.getParentCategory() != null && childCategory.getParentCategory().equals(category)) {
 
-                        result.append(StringUtils.repeat(SEPARATOR_SYMBOL, depth.getAndSet(depth.get() + 1)))
+                        result.append(SEPARATOR_SYMBOL.repeat(depth.getAndSet(depth.get() + 1)))
                                 .append(childCategory.getName()).append("\n");
                         findChildCategories(childCategory, categorySet, result, depth);
                     }

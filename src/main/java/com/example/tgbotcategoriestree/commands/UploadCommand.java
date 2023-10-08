@@ -21,7 +21,7 @@ import java.io.*;
 import java.net.URL;
 
 /**
- * Service class to manage uploading excel file and save categories from it into BD
+ * Service class to manage uploading Excel file and save categories from it into BD
  *
  * @author enovak89
  */

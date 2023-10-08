@@ -11,7 +11,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Service class for operation with xlsx files
@@ -59,7 +62,6 @@ public class FileService {
     private Workbook recordDataInWorkbookFromDbString() {
         //Getting all categories from DB
         String categoriesTreeString = categoryService.viewCategoriesTreeString();
-        System.out.println("categoriesTreeString = " + categoriesTreeString);
         String[] categoriesTreeStringArray = StringUtils.split(categoriesTreeString, '\n');
 
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -67,7 +69,6 @@ public class FileService {
         CellStyle cellStyle = createCellStyle(workbook);
 
         for (int i = 0; i < categoriesTreeStringArray.length; i++) {
-            System.out.println(("строка " + i + "   " + categoriesTreeStringArray[i]));
             Row row = excelSheetCategories.createRow(i);
             int cellNumber = StringUtils.countMatches(categoriesTreeStringArray[i], categoryService.getSeparatorSymbol());
             String category = categoriesTreeStringArray[i].substring(cellNumber);
@@ -75,40 +76,7 @@ public class FileService {
             cell.setCellValue(category);
             cell.setCellStyle(cellStyle);
         }
- return workbook;
-
-
-
-//        XSSFWorkbook workbook = new XSSFWorkbook();
-//        Sheet excelSheetCategories = workbook.createSheet("Categories Tree");
-//
-//        CellStyle cellStyle = createCellStyle(workbook);
-//
-//        int rowNumber = 0;
-//        int cellNumber;
-//        int maxColumnNumber = 0;
-//
-//        //Recording categories to excel workBook
-//        //Root - in the first cell, child - in the next cells in row
-//        for (String root : mapCategories.keySet()) {
-//            Row row = excelSheetCategories.createRow(rowNumber++);
-//            Cell cellRoot = row.createCell(0);
-//            cellRoot.setCellValue(root);
-//            cellRoot.setCellStyle(cellStyle);
-//            cellNumber = 1;
-//            for (String child : mapCategories.get(root)) {
-//                Cell cellChild = row.createCell(cellNumber++);
-//                cellChild.setCellValue(child);
-//                cellChild.setCellStyle(cellStyle);
-//                maxColumnNumber = Math.max(maxColumnNumber, cellNumber);
-//            }
-//        }
-//
-//        for (int i = 0; i < maxColumnNumber; i++) {
-//            excelSheetCategories.autoSizeColumn(i);
-//        }
-//
-//        return workbook;
+        return workbook;
     }
 
     /**
@@ -153,7 +121,7 @@ public class FileService {
     }
 
     /**
-     * Method to create excel cells style
+     * Method to create Excel cells style
      *
      * @param workbook for cells styling
      * @return cellStyle with Ground color and font
@@ -183,22 +151,89 @@ public class FileService {
 
         Set<String> sameElements = checkDataInWorkBook(workbook);
 
-        if (sameElements.isEmpty()) {
-
-            Sheet firstSheet = workbook.getSheetAt(0);
-            for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
-                Row row = firstSheet.getRow(i);
-                String rootCategoryName = row.getCell(0).toString();
-                categoryService.addRootElement(rootCategoryName);
-                for (int j = 1; j < row.getLastCellNum(); j++) {
-                    categoryService.addChildElement(rootCategoryName, row.getCell(j).toString());
-                }
-            }
-        } else {
+        if (!sameElements.isEmpty()) {
             throw new IllegalArgumentException("Downloading is completed unsuccessfully. " +
                     "\nThe following elements have already been added to categories tree before: " + sameElements
                     + "\nDelete it and try again");
         }
+
+        Sheet firstSheet = workbook.getSheetAt(0);
+        StringBuilder parentCategory = new StringBuilder();
+
+        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
+            Row row = firstSheet.getRow(i);
+            System.out.println("row.getLastCellNum() = " + row.getLastCellNum());
+            int lastCellNumber = row.getLastCellNum();
+
+            if (lastCellNumber == 1) {
+                //When row contains root category
+
+                parentCategory.replace(0, parentCategory.length(), row.getCell(0).toString());
+                categoryService.addRootElement(parentCategory.toString());
+
+            } else {
+                //When row not contains root category
+
+                int previousRowsLastCellNumber = firstSheet.getRow(i - 1).getLastCellNum();
+
+                if (lastCellNumber - previousRowsLastCellNumber > 0) {
+
+                    parentCategory.replace(0, parentCategory.length(),
+                            firstSheet.getRow(i - 1).getCell(previousRowsLastCellNumber - 1).toString());
+
+                } else if (lastCellNumber - previousRowsLastCellNumber < 0) {
+                    System.out.println("here");
+                    System.out.println("i = " + i);
+                    for (int j = i - 1; j >= 0; j--) {
+
+                        int previousRowWithParentCellNumber = firstSheet.getRow(j).getLastCellNum();
+                        System.out.println("lastCellNumber = " + lastCellNumber);
+                        System.out.println("previousRowWithParentCellNumber = " + previousRowWithParentCellNumber);
+
+                        if (lastCellNumber - 1 == previousRowWithParentCellNumber) {
+                            System.out.println("there");
+                            parentCategory.replace(0, parentCategory.length(),
+                                    firstSheet.getRow(j).getCell(previousRowWithParentCellNumber - 1).toString());
+                            System.out.println("cell there = " + firstSheet.getRow(j).getCell(previousRowWithParentCellNumber - 1).toString());
+                            break;
+                        }
+
+                    }
+
+                }
+
+                categoryService.addChildElement(parentCategory.toString(),
+                        row.getCell(lastCellNumber - 1).toString());
+
+            }
+        }
+    }
+
+    private Set<String> checkDataInWorkBook(Workbook workbook) {
+        //Getting string with all categories
+        String stringCategoriesFromDb = categoryService.viewCategoriesTreeString();
+
+        Set<String> sameElements = new HashSet<>();
+
+        //Checking DB contains categories from user workbook
+        Sheet firstSheet = workbook.getSheetAt(0);
+        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
+            Row row = firstSheet.getRow(i);
+            if (row.getLastCellNum() == 1 && (row.getCell(0) == null || row.getCell(0).toString().isEmpty())) {
+                throw new IllegalArgumentException("Downloading is completed unsuccessfully." +
+                        "\nThe first cell in a row whose last cell number = 1 is empty." +
+                        " \nThe first cell of such row must have a non-empty root element.");
+            }
+            for (int j = 0; j < row.getLastCellNum(); j++) {
+                if (row.getCell(j) == null || row.getCell(j).toString().isEmpty()) {
+                    continue;
+                }
+                if (stringCategoriesFromDb.contains(row.getCell(j).toString())) {
+                    sameElements.add(row.getCell(j).toString());
+                }
+            }
+        }
+        return sameElements;
     }
 
     /**
@@ -207,34 +242,34 @@ public class FileService {
      * @param workbook from user message
      * @return set with the same elements in user workbook and DB
      */
-    private Set<String> checkDataInWorkBook(Workbook workbook) {
-        //Getting map with all categories
-        Map<String, List<String>> mapCategoriesFromDb = categoryService.viewCategoriesTree();
-        Set<String> setCategoriesFromDb = new HashSet<>();
-        Set<String> sameElements = new HashSet<>();
-
-        //Mapping to set
-        for (String root : mapCategoriesFromDb.keySet()) {
-            setCategoriesFromDb.add(root);
-            setCategoriesFromDb.addAll(mapCategoriesFromDb.get(root));
-        }
-
-        //Checking DB contains categories from user workbook
-        Sheet firstSheet = workbook.getSheetAt(0);
-        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
-            Row row = firstSheet.getRow(i);
-            String rootCategoryName = row.getCell(0).toString();
-            if (setCategoriesFromDb.contains(rootCategoryName)) {
-                sameElements.add(rootCategoryName);
-            }
-            for (int j = 1; j < row.getLastCellNum(); j++) {
-                if (setCategoriesFromDb.contains(row.getCell(j).toString())) {
-                    sameElements.add(row.getCell(j).toString());
-                }
-            }
-        }
-        return sameElements;
-    }
+//    private Set<String> checkDataInWorkBook(Workbook workbook) {
+//        //Getting map with all categories
+//        Map<String, List<String>> mapCategoriesFromDb = categoryService.viewCategoriesTree();
+//        Set<String> setCategoriesFromDb = new HashSet<>();
+//        Set<String> sameElements = new HashSet<>();
+//
+//        //Mapping to set
+//        for (String root : mapCategoriesFromDb.keySet()) {
+//            setCategoriesFromDb.add(root);
+//            setCategoriesFromDb.addAll(mapCategoriesFromDb.get(root));
+//        }
+//
+//        //Checking DB contains categories from user workbook
+//        Sheet firstSheet = workbook.getSheetAt(0);
+//        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
+//            Row row = firstSheet.getRow(i);
+//            String rootCategoryName = row.getCell(0).toString();
+//            if (setCategoriesFromDb.contains(rootCategoryName)) {
+//                sameElements.add(rootCategoryName);
+//            }
+//            for (int j = 1; j < row.getLastCellNum(); j++) {
+//                if (setCategoriesFromDb.contains(row.getCell(j).toString())) {
+//                    sameElements.add(row.getCell(j).toString());
+//                }
+//            }
+//        }
+//        return sameElements;
+//    }
 
     /**
      * Getter for file name constant
