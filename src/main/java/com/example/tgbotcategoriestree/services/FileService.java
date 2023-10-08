@@ -12,8 +12,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,9 +57,14 @@ public class FileService {
         return new FileInputStream(fileLocation);
     }
 
+    /**
+     * Method to create excel workBook with categories from DB
+     *
+     * @return workBook with data
+     */
     private Workbook recordDataInWorkbookFromDbString() {
         //Getting all categories from DB
-        String categoriesTreeString = categoryService.viewCategoriesTreeString();
+        String categoriesTreeString = categoryService.viewCategoriesTree();
         String[] categoriesTreeStringArray = StringUtils.split(categoriesTreeString, '\n');
 
         XSSFWorkbook workbook = new XSSFWorkbook();
@@ -76,47 +79,6 @@ public class FileService {
             cell.setCellValue(category);
             cell.setCellStyle(cellStyle);
         }
-        return workbook;
-    }
-
-    /**
-     * Method to create excel workBook with categories from DB
-     *
-     * @return workBook with data
-     */
-    private Workbook recordDataInWorkbookFromDb() {
-        //Getting all categories from DB
-        Map<String, List<String>> mapCategories = categoryService.viewCategoriesTree();
-
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        Sheet excelSheetCategories = workbook.createSheet("Categories Tree");
-
-        CellStyle cellStyle = createCellStyle(workbook);
-
-        int rowNumber = 0;
-        int cellNumber;
-        int maxColumnNumber = 0;
-
-        //Recording categories to excel workBook
-        //Root - in the first cell, child - in the next cells in row
-        for (String root : mapCategories.keySet()) {
-            Row row = excelSheetCategories.createRow(rowNumber++);
-            Cell cellRoot = row.createCell(0);
-            cellRoot.setCellValue(root);
-            cellRoot.setCellStyle(cellStyle);
-            cellNumber = 1;
-            for (String child : mapCategories.get(root)) {
-                Cell cellChild = row.createCell(cellNumber++);
-                cellChild.setCellValue(child);
-                cellChild.setCellStyle(cellStyle);
-                maxColumnNumber = Math.max(maxColumnNumber, cellNumber);
-            }
-        }
-
-        for (int i = 0; i < maxColumnNumber; i++) {
-            excelSheetCategories.autoSizeColumn(i);
-        }
-
         return workbook;
     }
 
@@ -209,7 +171,7 @@ public class FileService {
      */
     private Set<String> checkDataInWorkBook(Workbook workbook) {
         //Getting string with all categories
-        String stringCategoriesFromDb = categoryService.viewCategoriesTreeString();
+        String stringCategoriesFromDb = categoryService.viewCategoriesTree();
 
         Set<String> sameElements = new HashSet<>();
 

@@ -127,8 +127,7 @@ public class UploadCommand extends BotCommandCustom {
      */
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
-        messageText.replace(0, messageText.length(), "Please, in your response message send XLSX file," +
-                " where at the first worksheet put root categories in the first column, its child categories - in the next columns");
+        messageText.replace(0, messageText.length(), "Please, in your response message send XLSX file");
         uploadCommandResultAnswer(absSender, chat, messageText.toString());
 
         UPLOAD_PERMISSION = true;
