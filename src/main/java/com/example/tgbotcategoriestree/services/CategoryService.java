@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.*;
 @Service
 public class CategoryService {
 
+    private final static String SEPARATOR_SYMBOL = ">";
+
     private final RootCategoryRepository rootCategoryRepository;
     private final ChildCategoryRepository childCategoryRepository;
     private final CategoryRepository categoryRepository;
@@ -165,7 +167,8 @@ public class CategoryService {
         StringBuilder result = new StringBuilder();
         Set<Category> setCategories = new TreeSet<>(Comparator.comparing(Category::getName));
         setCategories.addAll(categoryRepository.findAll());
-        Set<Category> setRootCategories = new HashSet<>(categoryRepository.findAllByParentCategoryNameNull());
+        Set<Category> setRootCategories = new TreeSet<>(Comparator.comparing(Category::getName));
+        setRootCategories.addAll(categoryRepository.findAllByParentCategoryNameNull());
 
         setRootCategories
                 .forEach(category -> {
@@ -176,13 +179,14 @@ public class CategoryService {
         return result.toString();
     }
 
-    public void findChildCategories(Category category, Set<Category> categorySet, StringBuilder result, AtomicReference<Integer> depth) {
+    public void findChildCategories(Category category, Set<Category> categorySet,
+                                    StringBuilder result, AtomicReference<Integer> depth) {
         categorySet
                 .forEach(childCategory -> {
 
                     if (childCategory.getParentCategory() != null && childCategory.getParentCategory().equals(category)) {
 
-                        result.append(StringUtils.repeat("->", depth.getAndSet(depth.get() + 1)))
+                        result.append(StringUtils.repeat(SEPARATOR_SYMBOL, depth.getAndSet(depth.get() + 1)))
                                 .append(childCategory.getName()).append("\n");
                         findChildCategories(childCategory, categorySet, result, depth);
                     }
@@ -216,5 +220,9 @@ public class CategoryService {
 
     public Set<Category> findChildCategories(String element) {
         return categoryRepository.findAllByParentCategoryName(element);
+    }
+
+    public String getSeparatorSymbol() {
+        return SEPARATOR_SYMBOL;
     }
 }

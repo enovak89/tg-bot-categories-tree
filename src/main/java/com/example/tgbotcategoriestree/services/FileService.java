@@ -1,5 +1,6 @@
 package com.example.tgbotcategoriestree.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -10,10 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service class for operation with xlsx files
@@ -41,7 +39,7 @@ public class FileService {
      */
     public FileInputStream createWorkBook() throws FileNotFoundException {
         //Getting styled workBook with all categories
-        Workbook excelBookCategories = recordDataInWorkbookFromDb();
+        Workbook excelBookCategories = recordDataInWorkbookFromDbString();
 
         //Creating and saving file
         File currDir = new File(".");
@@ -56,6 +54,61 @@ public class FileService {
             logger.error(e.getMessage());
         }
         return new FileInputStream(fileLocation);
+    }
+
+    private Workbook recordDataInWorkbookFromDbString() {
+        //Getting all categories from DB
+        String categoriesTreeString = categoryService.viewCategoriesTreeString();
+        System.out.println("categoriesTreeString = " + categoriesTreeString);
+        String[] categoriesTreeStringArray = StringUtils.split(categoriesTreeString, '\n');
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet excelSheetCategories = workbook.createSheet("Categories Tree");
+        CellStyle cellStyle = createCellStyle(workbook);
+
+        for (int i = 0; i < categoriesTreeStringArray.length; i++) {
+            System.out.println(("строка " + i + "   " + categoriesTreeStringArray[i]));
+            Row row = excelSheetCategories.createRow(i);
+            int cellNumber = StringUtils.countMatches(categoriesTreeStringArray[i], categoryService.getSeparatorSymbol());
+            String category = categoriesTreeStringArray[i].substring(cellNumber);
+            Cell cell = row.createCell(cellNumber);
+            cell.setCellValue(category);
+            cell.setCellStyle(cellStyle);
+        }
+ return workbook;
+
+
+
+//        XSSFWorkbook workbook = new XSSFWorkbook();
+//        Sheet excelSheetCategories = workbook.createSheet("Categories Tree");
+//
+//        CellStyle cellStyle = createCellStyle(workbook);
+//
+//        int rowNumber = 0;
+//        int cellNumber;
+//        int maxColumnNumber = 0;
+//
+//        //Recording categories to excel workBook
+//        //Root - in the first cell, child - in the next cells in row
+//        for (String root : mapCategories.keySet()) {
+//            Row row = excelSheetCategories.createRow(rowNumber++);
+//            Cell cellRoot = row.createCell(0);
+//            cellRoot.setCellValue(root);
+//            cellRoot.setCellStyle(cellStyle);
+//            cellNumber = 1;
+//            for (String child : mapCategories.get(root)) {
+//                Cell cellChild = row.createCell(cellNumber++);
+//                cellChild.setCellValue(child);
+//                cellChild.setCellStyle(cellStyle);
+//                maxColumnNumber = Math.max(maxColumnNumber, cellNumber);
+//            }
+//        }
+//
+//        for (int i = 0; i < maxColumnNumber; i++) {
+//            excelSheetCategories.autoSizeColumn(i);
+//        }
+//
+//        return workbook;
     }
 
     /**
