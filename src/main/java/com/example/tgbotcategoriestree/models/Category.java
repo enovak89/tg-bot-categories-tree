@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entity class of child category
+ * Entity class of category
  *
  * @author enovak89
  */
 @Entity
 @Data
 @NoArgsConstructor
-public class ChildCategory {
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,5 +20,5 @@ public class ChildCategory {
     private String name;
 
     @ManyToOne
-    private RootCategory root;
+    private Category parentCategory;
 }

@@ -1,15 +1,13 @@
 package com.example.tgbotcategoriestree.services;
 
-import com.example.tgbotcategoriestree.models.ChildCategory;
-import com.example.tgbotcategoriestree.models.RootCategory;
-import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
-import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
+import com.example.tgbotcategoriestree.models.Category;
+import com.example.tgbotcategoriestree.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.*;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Service class to add, remove, check categories and formed map with all structured categories
@@ -19,12 +17,12 @@ import static java.util.stream.Collectors.*;
 @Service
 public class CategoryService {
 
-    private final RootCategoryRepository rootCategoryRepository;
-    private final ChildCategoryRepository childCategoryRepository;
+    private final static String SEPARATOR_SYMBOL = ">";
 
-    public CategoryService(RootCategoryRepository rootCategoryRepository, ChildCategoryRepository childCategoryRepository) {
-        this.rootCategoryRepository = rootCategoryRepository;
-        this.childCategoryRepository = childCategoryRepository;
+    private final CategoryRepository categoryRepository;
+
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
     }
 
     /**
@@ -37,52 +35,40 @@ public class CategoryService {
         if (element == null || element.isEmpty()) {
             throw new IllegalArgumentException("The element can not be empty");
         }
-        if (checkRootElementPresent(element)) {
+        if (checkElementPresent(element)) {
             throw new IllegalArgumentException("The element \"" + element + "\" has already been added before");
         }
-        if (checkChildElementPresent(element)) {
-            throw new IllegalArgumentException("The element \"" + element + "\" has already been added before as child");
-        }
-
-        RootCategory rootCategory = new RootCategory();
-        rootCategory.setName(element);
-        rootCategoryRepository.save(rootCategory);
-
+        Category category = new Category();
+        category.setName(element);
+        categoryRepository.save(category);
     }
 
     /**
      * Method to check root and child categories present and save it or throws
      *
-     * @param rootElement  - root category
-     * @param childElement - child category
+     * @param parentElement - parent category
+     * @param childElement  - child category
      * @throws IllegalArgumentException
      */
-    public void addChildElement(String rootElement, String childElement) {
-        if (rootElement == null || rootElement.isEmpty()) {
-            throw new IllegalArgumentException("The root element can not be empty");
+    public void addChildElement(String parentElement, String childElement) {
+        if (parentElement == null || parentElement.isEmpty()) {
+            throw new IllegalArgumentException("The parent element can not be empty");
         }
         if (childElement == null || childElement.isEmpty()) {
             throw new IllegalArgumentException("The child element can not be empty");
         }
 
-        if (!checkRootElementPresent(rootElement)) {
-            throw new IllegalArgumentException("The root element \"" + rootElement + "\" was not found");
+        if (!checkElementPresent(parentElement)) {
+            throw new IllegalArgumentException("The parent element \"" + parentElement + "\" was not found");
         }
-        if (checkChildElementPresent(childElement)) {
+        if (checkElementPresent(childElement)) {
             throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before");
         }
-        if (checkRootElementPresent(childElement)) {
-            throw new IllegalArgumentException("The child element \"" + childElement + "\" has already been added before as root");
-        }
-        if (checkChildElementPresent(rootElement)) {
-            throw new IllegalArgumentException("The root element \"" + rootElement + "\" has already been added before as child");
-        }
 
-        ChildCategory childCategory = new ChildCategory();
-        childCategory.setName(childElement);
-        childCategory.setRoot(rootCategoryRepository.findByName(rootElement).get());
-        childCategoryRepository.save(childCategory);
-
+        Category category = new Category();
+        category.setParentCategory(categoryRepository.findByName(parentElement).get());
+        category.setName(childElement);
+        categoryRepository.save(category);
     }
 
     /**
@@ -93,48 +79,81 @@ public class CategoryService {
      */
     public void removeElement(String element) {
 
-        if (checkChildElementPresent(element)) {
-            childCategoryRepository.deleteByName(element);
-        } else if (checkRootElementPresent(element)) {
-            rootCategoryRepository.deleteByName(element);
+        if (checkElementPresent(element)) {
+            Set<Category> childCategories = categoryRepository.findAllByParentCategoryName(element);
+            if (!childCategories.isEmpty()) {
+                childCategories
+                        .forEach(category -> removeElement(category.getName()));
+                removeElement(element);
+            } else {
+                categoryRepository.deleteByName(element);
+            }
         } else {
             throw new IllegalArgumentException("The element \"" + element + "\" was not found");
         }
     }
 
     /**
-     * Method to form map with all structured categories
+     * Method to form string with all structured categories
      *
-     * @return map with categories tree
+     * @return string with categories tree
      */
-    public Map<String, List<String>> viewCategoriesTree() {
+    public String viewCategoriesTree() {
+        StringBuilder result = new StringBuilder();
+        Set<Category> setCategories = new TreeSet<>(Comparator.comparing(Category::getName));
+        setCategories.addAll(categoryRepository.findAll());
+        Set<Category> setRootCategories = new TreeSet<>(Comparator.comparing(Category::getName));
+        setRootCategories.addAll(categoryRepository.findAllByParentCategoryNameNull());
 
-        return rootCategoryRepository.findAll().stream()
-                .collect(
-                        groupingBy(
-                                RootCategory::getName,
-                                flatMapping(root -> root.getChildCategories().stream()
-                                        .map(ChildCategory::getName), toList())
-                        ));
+        setRootCategories
+                .forEach(category -> {
+                    result.append(category.getName()).append("\n");
+                    AtomicReference<Integer> depth = new AtomicReference<>(1);
+                    findChildCategories(category, setCategories, result, depth);
+                });
+        return result.toString();
     }
 
     /**
-     * Method to check root category present
+     * Method to find child categories of element
      *
-     * @param element - root category
-     * @return boolean checking result
+     * @param category    - parent category
+     * @param categorySet - all categories
+     * @param result      - string with finded categories
+     * @param depth       - level of inheritance
+     * @return set with child categories
      */
-    public boolean checkRootElementPresent(String element) {
-        return rootCategoryRepository.findByName(element).isPresent();
+    public void findChildCategories(Category category, Set<Category> categorySet,
+                                    StringBuilder result, AtomicReference<Integer> depth) {
+        categorySet
+                .forEach(childCategory -> {
+
+                    if (childCategory.getParentCategory() != null && childCategory.getParentCategory().equals(category)) {
+
+                        result.append(SEPARATOR_SYMBOL.repeat(depth.getAndSet(depth.get() + 1)))
+                                .append(childCategory.getName()).append("\n");
+                        findChildCategories(childCategory, categorySet, result, depth);
+                    }
+                });
+        depth.getAndSet(depth.get() - 1);
     }
 
     /**
-     * Method to check child category present
+     * Method to check category present
      *
-     * @param element - child category
+     * @param element - category
      * @return boolean checking result
      */
-    public boolean checkChildElementPresent(String element) {
-        return childCategoryRepository.findByName(element).isPresent();
+    private boolean checkElementPresent(String element) {
+        return categoryRepository.findByName(element).isPresent();
+    }
+
+    /**
+     * Method to get separator symbol
+     *
+     * @return separator symbol
+     */
+    public String getSeparatorSymbol() {
+        return SEPARATOR_SYMBOL;
     }
 }
