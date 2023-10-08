@@ -162,7 +162,6 @@ public class FileService {
 
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
-            System.out.println("row.getLastCellNum() = " + row.getLastCellNum());
             int lastCellNumber = row.getLastCellNum();
 
             if (lastCellNumber == 1) {
@@ -182,24 +181,17 @@ public class FileService {
                             firstSheet.getRow(i - 1).getCell(previousRowsLastCellNumber - 1).toString());
 
                 } else if (lastCellNumber - previousRowsLastCellNumber < 0) {
-                    System.out.println("here");
-                    System.out.println("i = " + i);
+
                     for (int j = i - 1; j >= 0; j--) {
 
                         int previousRowWithParentCellNumber = firstSheet.getRow(j).getLastCellNum();
-                        System.out.println("lastCellNumber = " + lastCellNumber);
-                        System.out.println("previousRowWithParentCellNumber = " + previousRowWithParentCellNumber);
 
                         if (lastCellNumber - 1 == previousRowWithParentCellNumber) {
-                            System.out.println("there");
                             parentCategory.replace(0, parentCategory.length(),
                                     firstSheet.getRow(j).getCell(previousRowWithParentCellNumber - 1).toString());
-                            System.out.println("cell there = " + firstSheet.getRow(j).getCell(previousRowWithParentCellNumber - 1).toString());
                             break;
                         }
-
                     }
-
                 }
 
                 categoryService.addChildElement(parentCategory.toString(),
@@ -209,6 +201,12 @@ public class FileService {
         }
     }
 
+    /**
+     * Method to check already added categories in DB and return its
+     *
+     * @param workbook from user message
+     * @return set with the same elements in user workbook and DB
+     */
     private Set<String> checkDataInWorkBook(Workbook workbook) {
         //Getting string with all categories
         String stringCategoriesFromDb = categoryService.viewCategoriesTreeString();
@@ -219,10 +217,9 @@ public class FileService {
         Sheet firstSheet = workbook.getSheetAt(0);
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
-            if (row.getLastCellNum() == 1 && (row.getCell(0) == null || row.getCell(0).toString().isEmpty())) {
+            if (row == null) {
                 throw new IllegalArgumentException("Downloading is completed unsuccessfully." +
-                        "\nThe first cell in a row whose last cell number = 1 is empty." +
-                        " \nThe first cell of such row must have a non-empty root element.");
+                        "\nThere cannot be empty rows");
             }
             for (int j = 0; j < row.getLastCellNum(); j++) {
                 if (row.getCell(j) == null || row.getCell(j).toString().isEmpty()) {
@@ -236,40 +233,6 @@ public class FileService {
         return sameElements;
     }
 
-    /**
-     * Method to check already added categories in DB and return its
-     *
-     * @param workbook from user message
-     * @return set with the same elements in user workbook and DB
-     */
-//    private Set<String> checkDataInWorkBook(Workbook workbook) {
-//        //Getting map with all categories
-//        Map<String, List<String>> mapCategoriesFromDb = categoryService.viewCategoriesTree();
-//        Set<String> setCategoriesFromDb = new HashSet<>();
-//        Set<String> sameElements = new HashSet<>();
-//
-//        //Mapping to set
-//        for (String root : mapCategoriesFromDb.keySet()) {
-//            setCategoriesFromDb.add(root);
-//            setCategoriesFromDb.addAll(mapCategoriesFromDb.get(root));
-//        }
-//
-//        //Checking DB contains categories from user workbook
-//        Sheet firstSheet = workbook.getSheetAt(0);
-//        for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
-//            Row row = firstSheet.getRow(i);
-//            String rootCategoryName = row.getCell(0).toString();
-//            if (setCategoriesFromDb.contains(rootCategoryName)) {
-//                sameElements.add(rootCategoryName);
-//            }
-//            for (int j = 1; j < row.getLastCellNum(); j++) {
-//                if (setCategoriesFromDb.contains(row.getCell(j).toString())) {
-//                    sameElements.add(row.getCell(j).toString());
-//                }
-//            }
-//        }
-//        return sameElements;
-//    }
 
     /**
      * Getter for file name constant
