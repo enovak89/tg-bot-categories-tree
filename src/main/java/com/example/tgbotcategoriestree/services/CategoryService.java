@@ -6,10 +6,11 @@ import com.example.tgbotcategoriestree.models.RootCategory;
 import com.example.tgbotcategoriestree.repository.CategoryRepository;
 import com.example.tgbotcategoriestree.repository.ChildCategoryRepository;
 import com.example.tgbotcategoriestree.repository.RootCategoryRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.Collectors.*;
 
@@ -131,22 +132,17 @@ public class CategoryService {
     public void removeElement(String element) {
 
         if (checkElementPresent(element)) {
-            List<Category> childCategories = findChildCategories(element);
-            if (!childCategories.isEmpty()){
+            Set<Category> childCategories = findChildCategories(element);
+            if (!childCategories.isEmpty()) {
                 childCategories
                         .forEach(category -> removeElement(category.getName()));
-            removeElement(element);
-            }
-            else {
+                removeElement(element);
+            } else {
                 categoryRepository.deleteByName(element);
             }
         } else {
             throw new IllegalArgumentException("The element \"" + element + "\" was not found");
         }
-    }
-
-    public void removeChildElement(String element) {
-
     }
 
     /**
@@ -163,6 +159,35 @@ public class CategoryService {
                                 flatMapping(root -> root.getChildCategories().stream()
                                         .map(ChildCategory::getName), toList())
                         ));
+    }
+
+    public String viewCategoriesTreeString() {
+        StringBuilder result = new StringBuilder();
+        Set<Category> setCategories = new TreeSet<>(Comparator.comparing(Category::getName));
+        setCategories.addAll(categoryRepository.findAll());
+        Set<Category> setRootCategories = new HashSet<>(categoryRepository.findAllByParentCategoryNameNull());
+
+        setRootCategories
+                .forEach(category -> {
+                    result.append(category.getName()).append("\n");
+                    AtomicReference<Integer> depth = new AtomicReference<>(1);
+                    findChildCategories(category, setCategories, result, depth);
+                });
+        return result.toString();
+    }
+
+    public void findChildCategories(Category category, Set<Category> categorySet, StringBuilder result, AtomicReference<Integer> depth) {
+        categorySet
+                .forEach(childCategory -> {
+
+                    if (childCategory.getParentCategory() != null && childCategory.getParentCategory().equals(category)) {
+
+                        result.append(StringUtils.repeat("->", depth.getAndSet(depth.get() + 1)))
+                                .append(childCategory.getName()).append("\n");
+                        findChildCategories(childCategory, categorySet, result, depth);
+                    }
+                });
+        depth.getAndSet(depth.get() - 1);
     }
 
     /**
@@ -189,7 +214,7 @@ public class CategoryService {
         return categoryRepository.findByName(element).isPresent();
     }
 
-    public List<Category> findChildCategories(String element) {
+    public Set<Category> findChildCategories(String element) {
         return categoryRepository.findAllByParentCategoryName(element);
     }
 }

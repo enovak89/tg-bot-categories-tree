@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository class of category
@@ -19,7 +20,8 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByName(String elementName);
 
-    List<Category> findAllByParentCategoryName(String parentName);
+    Set<Category> findAllByParentCategoryName(String parentName);
+    Set<Category> findAllByParentCategoryNameNull();
 
     void deleteByName(String elementName);
 }

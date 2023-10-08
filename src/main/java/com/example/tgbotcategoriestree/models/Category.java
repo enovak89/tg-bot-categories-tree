@@ -3,7 +3,6 @@ package com.example.tgbotcategoriestree.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 
 /**
  * Entity class of category
