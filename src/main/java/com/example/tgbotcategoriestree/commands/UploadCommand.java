@@ -85,7 +85,7 @@ public class UploadCommand extends BotCommandCustom {
                 fileService.recordDataInDbFromWorkBook(workbook);
 
                 UPLOAD_PERMISSION = false;
-                messageText.replace(0, messageText.length(), "Downloading is completed successfully");
+                messageText.replace(0, messageText.length(), "Uploading is completed successfully");
                 uploadCommandResultAnswer(absSender, message.getChat(), messageText.toString());
             } catch (IOException | TelegramApiException | IllegalArgumentException e) {
                 UPLOAD_PERMISSION = false;

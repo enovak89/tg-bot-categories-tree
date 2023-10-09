@@ -114,7 +114,7 @@ public class FileService {
         Set<String> sameElements = checkDataInWorkBook(workbook);
 
         if (!sameElements.isEmpty()) {
-            throw new IllegalArgumentException("Downloading is completed unsuccessfully. " +
+            throw new IllegalArgumentException("Uploading is completed unsuccessfully. " +
                     "\nThe following elements have already been added to categories tree before: " + sameElements
                     + "\nDelete it and try again");
         }
@@ -180,7 +180,7 @@ public class FileService {
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
             if (row == null) {
-                throw new IllegalArgumentException("Downloading is completed unsuccessfully." +
+                throw new IllegalArgumentException("Uploading is completed unsuccessfully." +
                         "\nThere cannot be empty rows");
             }
             for (int j = 0; j < row.getLastCellNum(); j++) {
