@@ -100,8 +100,11 @@ public class CategoryService {
      */
     public String viewCategoriesTree() {
         StringBuilder result = new StringBuilder();
+        //Getting set with all categories from DB
         Set<Category> setCategories = new TreeSet<>(Comparator.comparing(Category::getName));
         setCategories.addAll(categoryRepository.findAll());
+
+        //Getting set with all root categories from DB
         Set<Category> setRootCategories = new TreeSet<>(Comparator.comparing(Category::getName));
         setRootCategories.addAll(categoryRepository.findAllByParentCategoryNameNull());
 
@@ -129,7 +132,7 @@ public class CategoryService {
                 .forEach(childCategory -> {
 
                     if (childCategory.getParentCategory() != null && childCategory.getParentCategory().equals(category)) {
-
+                    //When category is no root and is child for parameter method category
                         result.append(SEPARATOR_SYMBOL.repeat(depth.getAndSet(depth.get() + 1)))
                                 .append(childCategory.getName()).append("\n");
                         findChildCategories(childCategory, categorySet, result, depth);

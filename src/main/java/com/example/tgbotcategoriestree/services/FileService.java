@@ -65,12 +65,14 @@ public class FileService {
     private Workbook recordDataInWorkbookFromDbString() {
         //Getting all categories from DB
         String categoriesTreeString = categoryService.viewCategoriesTree();
+        //Parsing string to string array split by categories
         String[] categoriesTreeStringArray = StringUtils.split(categoriesTreeString, '\n');
 
         XSSFWorkbook workbook = new XSSFWorkbook();
         Sheet excelSheetCategories = workbook.createSheet("Categories Tree");
         CellStyle cellStyle = createCellStyle(workbook);
 
+        //Filling worksheet cells by categories string array
         for (int i = 0; i < categoriesTreeStringArray.length; i++) {
             Row row = excelSheetCategories.createRow(i);
             int cellNumber = StringUtils.countMatches(categoriesTreeStringArray[i], categoryService.getSeparatorSymbol());
@@ -110,7 +112,7 @@ public class FileService {
      * @throws IllegalArgumentException
      */
     public void recordDataInDbFromWorkBook(Workbook workbook) {
-
+        //Getting categories the same in user workbook and DB
         Set<String> sameElements = checkDataInWorkBook(workbook);
 
         if (!sameElements.isEmpty()) {
@@ -121,6 +123,7 @@ public class FileService {
 
         Sheet firstSheet = workbook.getSheetAt(0);
         StringBuilder parentCategory = new StringBuilder();
+
 
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
@@ -138,11 +141,12 @@ public class FileService {
                 int previousRowsLastCellNumber = firstSheet.getRow(i - 1).getLastCellNum();
 
                 if (lastCellNumber - previousRowsLastCellNumber > 0) {
-
+                //When the inheritance level increases - setting parent category as previous row previous cell value
                     parentCategory.replace(0, parentCategory.length(),
                             firstSheet.getRow(i - 1).getCell(previousRowsLastCellNumber - 1).toString());
 
                 } else if (lastCellNumber - previousRowsLastCellNumber < 0) {
+                    //When the inheritance level decreases - finding parent category in previous rows
 
                     for (int j = i - 1; j >= 0; j--) {
 
@@ -155,7 +159,7 @@ public class FileService {
                         }
                     }
                 }
-
+                //When the inheritance level has not changed
                 categoryService.addChildElement(parentCategory.toString(),
                         row.getCell(lastCellNumber - 1).toString());
 
@@ -175,7 +179,7 @@ public class FileService {
 
         Set<String> sameElements = new HashSet<>();
 
-        //Checking DB contains categories from user workbook
+        //Checking user workbook contains categories from db or empty rows
         Sheet firstSheet = workbook.getSheetAt(0);
         for (int i = 0; i <= firstSheet.getLastRowNum(); i++) {
             Row row = firstSheet.getRow(i);
